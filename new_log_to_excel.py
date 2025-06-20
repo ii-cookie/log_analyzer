@@ -137,9 +137,20 @@ def extract_logs_to_excel(zip_path, output_excel):
         
         print(f"Excel file created successfully: {output_excel}")
 
+
+def get_filenames_without_extension(folder_path='logs'):
+    """Return a list of filenames in the specified folder without their extensions."""
+    filenames = []
+    for file in os.listdir(folder_path):
+        if os.path.isfile(os.path.join(folder_path, file)):
+            filename, _ = os.path.splitext(file)
+            filenames.append(filename)
+    return filenames
+
 if __name__ == "__main__":
     # Example usage
-    filename = "POR-01C-PDC7"
-    zip_file_path = filename + '.zip'  # Replace with your zip file path
-    output_excel_path = filename + ".xlsx"  # Desired output Excel file
-    extract_logs_to_excel(zip_file_path, output_excel_path)
+    filenames = get_filenames_without_extension('logs')
+    for filename in filenames:
+        zip_file_path = 'logs/' + filename + '.zip'  # Replace with your zip file path
+        output_excel_path = 'xlsx' + filename + ".xlsx"  # Desired output Excel file
+        extract_logs_to_excel(zip_file_path, output_excel_path)
