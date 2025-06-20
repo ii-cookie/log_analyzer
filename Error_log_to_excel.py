@@ -17,14 +17,16 @@ def parse_local_log_line(line):
     return None
 
 def get_error_type(message):
+    B1_pattern = r'获取工作站状态失败，服务不可访问$'
+    B2_pattern = r'登录页，已到最大重试次数，进入离线模式$'
     """Determine the error type based on the message content."""
     if message == '检测服务器状态：False':
         return 'A1'
     elif message == '程序启动时，网络异常，将进入离线模式':
         return 'A2'
-    elif message == '获取工作站状态失败，服务不可访问':
+    elif re.findall(B1_pattern, message):
         return 'B1'
-    elif message == '登录页，已到最大重试次数，进入离线模式':
+    elif re.findall(B2_pattern, message):
         return 'B2'
     return None
 
@@ -52,6 +54,7 @@ def extract_errors_to_single_excel(logs_folder='logs', output_excel='xlsx/error_
     # Regular expression to match date in filename (e.g., 2025-02-10)
     date_pattern = r'(\d{4}-\d{2}-\d{2})'
     
+    invalid_zip = []
     # Walk through logs folder and all subfolders
     for root, _folder, files in os.walk(logs_folder):
         print(f'going through: {_folder} ... ')
@@ -93,8 +96,13 @@ def extract_errors_to_single_excel(logs_folder='logs', output_excel='xlsx/error_
                                 all_error_logs.extend(log_data)
                     except zipfile.BadZipFile:
                         print(f"Invalid zip file: {zip_path}")
+                        invalid_zip.append(zip_path)
                         continue
     
+    with open('invalid_zip.txt', 'w') as f:
+        for zip in invalid_zip:
+            f.write(zip + '\n')
+        print(f"invalid_zip.txt created")
     # Create DataFrame
     error_df = pd.DataFrame(all_error_logs)
     
@@ -114,5 +122,12 @@ def extract_errors_to_single_excel(logs_folder='logs', output_excel='xlsx/error_
     print(f"Excel file created successfully: {output_excel}")
 
 if __name__ == "__main__":
-    # Example usage
+    
+    #using current directory folder
+    #RUN in local logs folder
     extract_errors_to_single_excel(logs_folder='logs', output_excel='xlsx/error_logs.xlsx')
+    
+    #using onedrive folder from C:\Users\isaacleong\Downloads\log_analyzer to C:\Users\isaacleong\WAFER SYSTEMS\Tin Lai - Log
+    #RUN in relative path to one drive, may need to change depending where you downloaded this directory
+    folderpath = '../../WAFER SYSTEMS/Tin Lai - Log'
+    # extract_errors_to_single_excel(logs_folder=folderpath, output_excel='xlsx/all_error_logs.xlsx')
