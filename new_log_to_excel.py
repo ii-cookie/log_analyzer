@@ -144,6 +144,8 @@ def get_filenames_without_extension(folder_path='logs'):
     for file in os.listdir(folder_path):
         if os.path.isfile(os.path.join(folder_path, file)):
             filename, _ = os.path.splitext(file)
+            if filename == '.gitignore':
+                continue
             filenames.append(filename)
     return filenames
 
@@ -152,5 +154,5 @@ if __name__ == "__main__":
     filenames = get_filenames_without_extension('logs')
     for filename in filenames:
         zip_file_path = 'logs/' + filename + '.zip'  # Replace with your zip file path
-        output_excel_path = 'xlsx' + filename + ".xlsx"  # Desired output Excel file
+        output_excel_path = 'xlsx/' + filename + ".xlsx"  # Desired output Excel file
         extract_logs_to_excel(zip_file_path, output_excel_path)
