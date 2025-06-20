@@ -101,55 +101,56 @@ def extract_logs_to_excel(zip_path, output_excel):
                         entry['Date'] = date_str
                         local_logs.append(entry)
                         # Filter for ServiceUnavailableHelper.CheckServerConnect
-                        if entry['Component'] == 'ServiceUnavailableHelper.CheckServerConnect':
-                            if entry['Message'] != '服务器状态：True' and entry['Message'] != '服务器状态：False':
-                                #BELOW = making a truth table
-                                if entry['Message'] == '第1次，检测服务器状态：True':
-                                    entry['Count: 1T'] = 1
-                                    entry['Count: 2T'] = 0
-                                    entry['Count: 3T'] = 0
-                                    entry['Count: 1F'] = 0
-                                    entry['Count: 2F'] = 0
-                                    entry['Count: 3F'] = 0
+                        # if entry['Component'] == 'ServiceUnavailableHelper.CheckServerConnect':
+                        #     if entry['Message'] != '服务器状态：True' and entry['Message'] != '服务器状态：False':
+                        #         #BELOW = making a truth table
+                        #         if entry['Message'] == '第1次，检测服务器状态：True':
+                        #             entry['Count: 1T'] = 1
+                        #             entry['Count: 2T'] = 0
+                        #             entry['Count: 3T'] = 0
+                        #             entry['Count: 1F'] = 0
+                        #             entry['Count: 2F'] = 0
+                        #             entry['Count: 3F'] = 0
                                     
-                                if entry['Message'] == '第1次，检测服务器状态：False':
-                                    entry['Count: 1T'] = 0
-                                    entry['Count: 2T'] = 0
-                                    entry['Count: 3T'] = 0
-                                    entry['Count: 1F'] = 1
-                                    entry['Count: 2F'] = 0
-                                    entry['Count: 3F'] = 0
+                        #         if entry['Message'] == '第1次，检测服务器状态：False':
+                        #             entry['Count: 1T'] = 0
+                        #             entry['Count: 2T'] = 0
+                        #             entry['Count: 3T'] = 0
+                        #             entry['Count: 1F'] = 1
+                        #             entry['Count: 2F'] = 0
+                        #             entry['Count: 3F'] = 0
                                     
-                                if entry['Message'] == '第2次，检测服务器状态：True':
-                                    entry['Count: 1T'] = 0
-                                    entry['Count: 2T'] = 1
-                                    entry['Count: 3T'] = 0
-                                    entry['Count: 1F'] = 0
-                                    entry['Count: 2F'] = 0
-                                    entry['Count: 3F'] = 0
-                                if entry['Message'] == '第2次，检测服务器状态：False':
-                                    entry['Count: 1T'] = 0
-                                    entry['Count: 2T'] = 0
-                                    entry['Count: 3T'] = 0
-                                    entry['Count: 1F'] = 0
-                                    entry['Count: 2F'] = 1
-                                    entry['Count: 3F'] = 0
+                        #         if entry['Message'] == '第2次，检测服务器状态：True':
+                        #             entry['Count: 1T'] = 0
+                        #             entry['Count: 2T'] = 1
+                        #             entry['Count: 3T'] = 0
+                        #             entry['Count: 1F'] = 0
+                        #             entry['Count: 2F'] = 0
+                        #             entry['Count: 3F'] = 0
+                        #         if entry['Message'] == '第2次，检测服务器状态：False':
+                        #             entry['Count: 1T'] = 0
+                        #             entry['Count: 2T'] = 0
+                        #             entry['Count: 3T'] = 0
+                        #             entry['Count: 1F'] = 0
+                        #             entry['Count: 2F'] = 1
+                        #             entry['Count: 3F'] = 0
                                     
-                                if entry['Message'] == '第3次，检测服务器状态：True':
-                                    entry['Count: 1T'] = 0
-                                    entry['Count: 2T'] = 0
-                                    entry['Count: 3T'] = 1
-                                    entry['Count: 1F'] = 0
-                                    entry['Count: 2F'] = 0
-                                    entry['Count: 3F'] = 0
-                                if entry['Message'] == '第3次，检测服务器状态：False':
-                                    entry['Count: 1T'] = 0
-                                    entry['Count: 2T'] = 0
-                                    entry['Count: 3T'] = 0
-                                    entry['Count: 1F'] = 0
-                                    entry['Count: 2F'] = 0
-                                    entry['Count: 3F'] = 1
-                                
+                        #         if entry['Message'] == '第3次，检测服务器状态：True':
+                        #             entry['Count: 1T'] = 0
+                        #             entry['Count: 2T'] = 0
+                        #             entry['Count: 3T'] = 1
+                        #             entry['Count: 1F'] = 0
+                        #             entry['Count: 2F'] = 0
+                        #             entry['Count: 3F'] = 0
+                        #         if entry['Message'] == '第3次，检测服务器状态：False':
+                        #             entry['Count: 1T'] = 0
+                        #             entry['Count: 2T'] = 0
+                        #             entry['Count: 3T'] = 0
+                        #             entry['Count: 1F'] = 0
+                        #             entry['Count: 2F'] = 0
+                        #             entry['Count: 3F'] = 1
+                        if entry['Message'] == '第1次，检测服务器状态：False':
+                            
                                 service_unavailable_logs.append(entry)
                 elif file.endswith('_command.log'):
                     log_data = process_log_file(filepath, 'command')
