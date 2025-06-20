@@ -53,7 +53,6 @@ def extract_errors_to_single_excel(logs_folder='logs', output_excel='xlsx/error_
     date_pattern = r'(\d{4}-\d{2}-\d{2})'
     
     # Walk through logs folder and all subfolders
-    folder_i = 0
     for root, _folder, files in os.walk(logs_folder):
         print(f'going through: {_folder} ... ')
         for file in files:
