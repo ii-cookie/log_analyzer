@@ -6,7 +6,6 @@ import tempfile
 
 def parse_local_log_line(line):
     """Parse a local log line to extract timestamp and message."""
-    # Example: 09:24:12 645 [ServiceUnavailableHelper.CheckServerConnect]服务器状态：False
     pattern = r'(\d{2}:\d{2}:\d{2})\s+\d+\s+\[[^\]]+\](.*)'
     match = re.match(pattern, line.strip())
     if match:
