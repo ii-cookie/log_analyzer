@@ -91,12 +91,64 @@ def extract_logs_to_excel(zip_path, output_excel):
                     main_logs.extend(log_data)
                 elif file.endswith('_local.log'):
                     log_data = process_log_file(filepath, 'local')
+                    # first_true_count = 0
+                    # first_false_count = 0
+                    # second_true_count = 0
+                    # second_false_count = 0
+                    # third_true_count = 0
+                    # third_false_count = 0
                     for entry in log_data:
                         entry['Date'] = date_str
                         local_logs.append(entry)
                         # Filter for ServiceUnavailableHelper.CheckServerConnect
                         if entry['Component'] == 'ServiceUnavailableHelper.CheckServerConnect':
                             if entry['Message'] != '服务器状态：True' and entry['Message'] != '服务器状态：False':
+                                if entry['Message'] == '第1次，检测服务器状态：True':
+                                    entry['Count: 1T'] = 1
+                                    entry['Count: 2T'] = 0
+                                    entry['Count: 3T'] = 0
+                                    entry['Count: 1F'] = 0
+                                    entry['Count: 2F'] = 0
+                                    entry['Count: 3F'] = 0
+                                    
+                                if entry['Message'] == '第1次，检测服务器状态：False':
+                                    entry['Count: 1T'] = 0
+                                    entry['Count: 2T'] = 0
+                                    entry['Count: 3T'] = 0
+                                    entry['Count: 1F'] = 1
+                                    entry['Count: 2F'] = 0
+                                    entry['Count: 3F'] = 0
+                                    
+                                if entry['Message'] == '第2次，检测服务器状态：True':
+                                    entry['Count: 1T'] = 0
+                                    entry['Count: 2T'] = 1
+                                    entry['Count: 3T'] = 0
+                                    entry['Count: 1F'] = 0
+                                    entry['Count: 2F'] = 0
+                                    entry['Count: 3F'] = 0
+                                if entry['Message'] == '第2次，检测服务器状态：False':
+                                    entry['Count: 1T'] = 0
+                                    entry['Count: 2T'] = 0
+                                    entry['Count: 3T'] = 0
+                                    entry['Count: 1F'] = 0
+                                    entry['Count: 2F'] = 1
+                                    entry['Count: 3F'] = 0
+                                    
+                                if entry['Message'] == '第3次，检测服务器状态：True':
+                                    entry['Count: 1T'] = 0
+                                    entry['Count: 2T'] = 0
+                                    entry['Count: 3T'] = 1
+                                    entry['Count: 1F'] = 0
+                                    entry['Count: 2F'] = 0
+                                    entry['Count: 3F'] = 0
+                                if entry['Message'] == '第3次，检测服务器状态：False':
+                                    entry['Count: 1T'] = 0
+                                    entry['Count: 2T'] = 0
+                                    entry['Count: 3T'] = 0
+                                    entry['Count: 1F'] = 0
+                                    entry['Count: 2F'] = 0
+                                    entry['Count: 3F'] = 1
+                                
                                 service_unavailable_logs.append(entry)
                 elif file.endswith('_command.log'):
                     log_data = process_log_file(filepath, 'command')
@@ -123,7 +175,7 @@ def extract_logs_to_excel(zip_path, output_excel):
         #     command_cols = ['Date', 'Timestamp', 'Component', 'Action', 'Details']
         #     command_df = command_df[command_cols]
         if not service_unavailable_df.empty:
-            service_unavailable_cols = ['Date', 'Timestamp', 'Sequence', 'Component', 'Message']
+            service_unavailable_cols = ['Date', 'Timestamp', 'Sequence', 'Component', 'Message', 'Count: 1T', 'Count: 2T', 'Count: 3T', 'Count: 1F', 'Count: 2F', 'Count: 3F']
             service_unavailable_df = service_unavailable_df[service_unavailable_cols]
         
         # Save to Excel with separate sheets
