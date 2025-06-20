@@ -103,6 +103,7 @@ def extract_logs_to_excel(zip_path, output_excel):
                         # Filter for ServiceUnavailableHelper.CheckServerConnect
                         if entry['Component'] == 'ServiceUnavailableHelper.CheckServerConnect':
                             if entry['Message'] != '服务器状态：True' and entry['Message'] != '服务器状态：False':
+                                #BELOW = making a truth table
                                 if entry['Message'] == '第1次，检测服务器状态：True':
                                     entry['Count: 1T'] = 1
                                     entry['Count: 2T'] = 0
@@ -190,6 +191,26 @@ def extract_logs_to_excel(zip_path, output_excel):
             #     command_df.to_excel(writer, sheet_name='Command_Logs', index=False)
             if not service_unavailable_df.empty:
                 service_unavailable_df.to_excel(writer, sheet_name='ServiceUnavailable_Logs', index=False)
+                
+                
+                #BELOW = finding total of each column
+                # Get the xlsxwriter workbook and worksheet objects
+                workbook = writer.book
+                worksheet = writer.sheets['ServiceUnavailable_Logs']
+                
+                # Calculate sums for count columns
+                count_columns = ['Count: 1T', 'Count: 2T', 'Count: 3T', 'Count: 1F', 'Count: 2F', 'Count: 3F']
+                sums = service_unavailable_df[count_columns].sum()
+                
+                # Write the sums to the row below the data
+                last_row = len(service_unavailable_df) + 1  # +1 for header row
+                worksheet.write(last_row, 0, 'Total')  # Label for the summary row
+                
+                # Map DataFrame column names to Excel column indices (F to K for count columns)
+                col_map = {col: service_unavailable_cols.index(col) for col in count_columns}
+                for col_name in count_columns:
+                    col_idx = col_map[col_name]
+                    worksheet.write_number(last_row, col_idx, sums[col_name])
         
         print(f"Excel file created successfully: {output_excel}")
 
