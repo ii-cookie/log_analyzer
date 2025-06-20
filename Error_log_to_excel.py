@@ -44,63 +44,57 @@ def process_local_log_file(filepath, date_str, library, machine):
                     data.append(parsed)
     return data
 
-def get_filenames_without_extension(folder_path='logs'):
-    """Return a list of filenames in the specified folder without their extensions."""
-    filenames = []
-    for file in os.listdir(folder_path):
-        if os.path.isfile(os.path.join(folder_path, file)):
-            filename, _ = os.path.splitext(file)
-            if filename == '.gitignore':
-                continue
-            filenames.append(filename)
-    return filenames
-
-def extract_errors_to_single_excel(logs_folder='logs', output_excel='error_logs.xlsx'):
-    """Extract specified error types from local logs in all zip files and save to a single Excel file."""
+def extract_errors_to_single_excel(logs_folder='logs', output_excel='xlsx/error_logs.xlsx'):
+    """Extract specified error types from local logs in all zip files across subfolders and save to a single Excel file."""
     # Initialize list to store all error data
     all_error_logs = []
     
     # Regular expression to match date in filename (e.g., 2025-02-10)
     date_pattern = r'(\d{4}-\d{2}-\d{2})'
     
-    # Get list of zip filenames
-    filenames = get_filenames_without_extension(logs_folder)
-    
-    for filename in filenames:
-        zip_path = os.path.join(logs_folder, filename + '.zip')
-        
-        # Extract Library and Machine from filename (e.g., YT-GFK-PAK1)
-        library = filename.split('-')[0] if '-' in filename else filename
-        machine = filename
-        
-        # Create a temporary directory to extract files
-        with tempfile.TemporaryDirectory() as temp_dir:
-            try:
-                # Extract zip file
-                with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-                    zip_ref.extractall(temp_dir)
+    # Walk through logs folder and all subfolders
+    folder_i = 0
+    for root, _folder, files in os.walk(logs_folder):
+        print(f'going through: {_folder} ... ')
+        for file in files:
+            if file.endswith('.zip') and file != '.gitignore':
+                zip_path = os.path.join(root, file)
                 
-                # Walk through the Log folder
-                log_dir = os.path.join(temp_dir, 'Log')
-                if not os.path.exists(log_dir):
-                    print(f"Log directory not found in zip file: {zip_path}")
-                    continue
+                # Extract filename without extension
+                filename = os.path.splitext(file)[0]
                 
-                for root, _, files in os.walk(log_dir):
-                    for file in files:
-                        # Match date in filename and process only _local.log files
-                        date_match = re.search(date_pattern, file)
-                        if not date_match or not file.endswith('_local.log'):
-                            continue
-                        date_str = date_match.group(1)
+                # Extract Library and Machine from filename (e.g., YT-GFK-PAK1)
+                library = filename.split('-')[0] if '-' in filename else filename
+                machine = filename
+                
+                # Create a temporary directory to extract files
+                with tempfile.TemporaryDirectory() as temp_dir:
+                    try:
+                        # Extract zip file
+                        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+                            zip_ref.extractall(temp_dir)
                         
-                        # Process local log file
-                        filepath = os.path.join(root, file)
-                        log_data = process_local_log_file(filepath, date_str, library, machine)
-                        all_error_logs.extend(log_data)
-            except zipfile.BadZipFile:
-                print(f"Invalid zip file: {zip_path}")
-                continue
+                        # Walk through the Log folder in the zip
+                        log_dir = os.path.join(temp_dir, 'Log')
+                        if not os.path.exists(log_dir):
+                            print(f"Log directory not found in zip file: {zip_path}")
+                            continue
+                        
+                        for log_root, _, log_files in os.walk(log_dir):
+                            for log_file in log_files:
+                                # Match date in filename and process only _local.log files
+                                date_match = re.search(date_pattern, log_file)
+                                if not date_match or not log_file.endswith('_local.log'):
+                                    continue
+                                date_str = date_match.group(1)
+                                
+                                # Process local log file
+                                filepath = os.path.join(log_root, log_file)
+                                log_data = process_local_log_file(filepath, date_str, library, machine)
+                                all_error_logs.extend(log_data)
+                    except zipfile.BadZipFile:
+                        print(f"Invalid zip file: {zip_path}")
+                        continue
     
     # Create DataFrame
     error_df = pd.DataFrame(all_error_logs)
@@ -109,6 +103,9 @@ def extract_errors_to_single_excel(logs_folder='logs', output_excel='error_logs.
     if not error_df.empty:
         error_cols = ['Library', 'Machine', 'Date', 'Time', 'Error Type']
         error_df = error_df[error_cols]
+    
+    # Ensure output directory exists
+    os.makedirs(os.path.dirname(output_excel), exist_ok=True)
     
     # Save to Excel
     with pd.ExcelWriter(output_excel, engine='xlsxwriter') as writer:
