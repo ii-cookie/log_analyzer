@@ -111,6 +111,7 @@ def extract_logs_to_excel(zip_path, output_excel):
         service_unavailable_df = pd.DataFrame(service_unavailable_logs)
         
         # Reorder columns to have Date and Timestamp first
+        
         # UNCOMMENT BELOW IF want all logs in excel
         # if not main_df.empty:
         #     main_cols = ['Date', 'Timestamp', 'LogLevel', 'Message']
@@ -127,6 +128,7 @@ def extract_logs_to_excel(zip_path, output_excel):
         
         # Save to Excel with separate sheets
         with pd.ExcelWriter(output_excel, engine='xlsxwriter') as writer:
+            
             # UNCOMMENT BELOW IF want all logs in excel
             # if not main_df.empty:
             #     main_df.to_excel(writer, sheet_name='Main_Logs', index=False)
