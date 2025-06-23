@@ -58,7 +58,7 @@ def extract_errors_to_single_excel(logs_folder='logs', output_excel='xlsx/error_
     invalid_zip = []
     # Walk through logs folder and all subfolders
     for root, _folder, files in os.walk(logs_folder):
-        print(f'going through: {_folder} ... ')
+        print(f'going through: {root}: {_folder} ... ')
         for file in files:
             if file.endswith('.zip') and file != '.gitignore':
                 zip_path = os.path.join(root, file)
