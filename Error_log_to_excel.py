@@ -16,10 +16,12 @@ def parse_local_log_line(line):
     return None
 
 def get_error_type(message):
+    A1_pattern = r'检测服务器状态：False$'
+    A2_pattern = r'程序启动时，网络异常，将进入离线模式$'
     B1_pattern = r'获取工作站状态失败，服务不可访问$'
     B2_pattern = r'登录页，已到最大重试次数，进入离线模式$'
     """Determine the error type based on the message content."""
-    if message == '检测服务器状态：False':
+    if re.findall(A1_pattern, message):
         return 'A1'
     elif message == '程序启动时，网络异常，将进入离线模式':
         return 'A2'
@@ -124,9 +126,9 @@ if __name__ == "__main__":
     
     #using current directory folder
     #RUN in local logs folder
-    extract_errors_to_single_excel(logs_folder='logs', output_excel='xlsx/error_logs.xlsx')
+    # extract_errors_to_single_excel(logs_folder='logs', output_excel='xlsx/error_logs.xlsx')
     
     #using onedrive folder from C:\Users\isaacleong\Downloads\log_analyzer to C:\Users\isaacleong\WAFER SYSTEMS\Tin Lai - Log
     #RUN in relative path to one drive, may need to change depending where you downloaded this directory
-    folderpath = '../../WAFER SYSTEMS/Tin Lai - Log'
-    # extract_errors_to_single_excel(logs_folder=folderpath, output_excel='xlsx/all_error_logs.xlsx')
+    folderpath = '../../WAFER SYSTEMS/Tin Lai - Log/20.6.2025'
+    extract_errors_to_single_excel(logs_folder=folderpath, output_excel='xlsx/all_error_logs.xlsx')
