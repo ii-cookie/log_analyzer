@@ -130,9 +130,11 @@ def extract_errors_to_single_excel(logs_folder='logs', output_excel='xlsx/error_
     with pd.ExcelWriter(output_excel, engine='xlsxwriter') as writer:
         if not error_df.empty:
             error_df.to_excel(writer, sheet_name='Error_Logs', index=False)
-    
-    print(f"number of machines per lib: {lib_machines_count}")
+            
+            
     print(f"Excel file created successfully: {output_excel}")
+    print(f"number of machines per lib: {lib_machines_count}")
+    
 
 if __name__ == "__main__":
     
