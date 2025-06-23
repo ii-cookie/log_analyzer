@@ -56,6 +56,10 @@ def extract_errors_to_single_excel(logs_folder='logs', output_excel='xlsx/error_
     date_pattern = r'(\d{4}-\d{2}-\d{2})'
     
     invalid_zip = []
+    
+    lib_machines_count = {
+        "all library": 0
+    }
     # Walk through logs folder and all subfolders
     for root, _folder, files in os.walk(logs_folder):
         print(f'going through: {root}: {_folder} ... ')
@@ -70,6 +74,11 @@ def extract_errors_to_single_excel(logs_folder='logs', output_excel='xlsx/error_
                 library = filename.split('-')[0] if '-' in filename else filename
                 machine = filename
                 
+                if library in lib_machines_count:  
+                    lib_machines_count[library] += 1
+                else:
+                    lib_machines_count[library] = 1
+                lib_machines_count['all library'] += 1
                 # Create a temporary directory to extract files
                 with tempfile.TemporaryDirectory() as temp_dir:
                     try:
@@ -101,9 +110,11 @@ def extract_errors_to_single_excel(logs_folder='logs', output_excel='xlsx/error_
                         continue
     
     with open('invalid_zip.txt', 'w') as f:
+        count = 0
         for zip in invalid_zip:
             f.write(zip + '\n')
-        print(f"invalid_zip.txt created")
+            count += 1
+        print(f"invalid_zip.txt created, total invalid zips: {count}")
     # Create DataFrame
     error_df = pd.DataFrame(all_error_logs)
     
@@ -120,6 +131,7 @@ def extract_errors_to_single_excel(logs_folder='logs', output_excel='xlsx/error_
         if not error_df.empty:
             error_df.to_excel(writer, sheet_name='Error_Logs', index=False)
     
+    print(f"number of machines per lib: {lib_machines_count}")
     print(f"Excel file created successfully: {output_excel}")
 
 if __name__ == "__main__":
