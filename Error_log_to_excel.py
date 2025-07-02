@@ -269,10 +269,11 @@ if __name__ == "__main__":
         else:
             print('')
         reply = input('\033[94m' + 'The current logs folder is: ' + '\033[4m' + folderpath + '\n' + '\033[0m' + '\033[94m' +
-                      'The result will be stored to: ' + '\033[4m' + output_excel_location + '\n\n' + '\033[0m' + '\033[96m' +
+                      'The result will be stored to: ' + '\033[4m' + output_excel_location + '\n' + '\033[0m' + '\033[96m' +
                       'Commands:\n' +
                       '\tTo change get log location, please type \'logs\'\n' +
                       '\tTo change export excel file settings, please type \'export\'\n' +
+                      '\tTo add or remove error types, please type \'errors\'\n' +
                       '\tTo run the program, please type \'run\' \n' + '\033[0m'
                       )
         if reply == 'run':
@@ -306,6 +307,18 @@ if __name__ == "__main__":
                 continue
             output_excel_location = re.sub('<date>', today.strftime('%d-%m-%Y'), reply)
             terminal_response = '\033[92m' + 'export path changed successfully' + '\033[0m'
+            
+        elif reply == 'errors':
+            data = get_error_json()
+            print('\033[95m' + '-----------------------------------errors settings-----------------------------------' + '\033[0m' + '\033[96m')
+            for error in data:
+                print('\033[94m' + error + ': ' + data[error] + '\033[96m')
+            reply = input(
+                          'Commands:\n' +
+                          '\tTo add error type, please type \'add <key> <error message>\'\n' +
+                          '\tTo remove error type, please type \'remove <key>\'\n' +
+                          '\tTo go back, please type \'back\'\n' + 
+                          '\tTo run the program, please type \'run\' \n' + '\033[0m')
         else: 
             terminal_response = '\033[93m' + 'Warning: this command do not exist' + '\033[0m'
             continue
