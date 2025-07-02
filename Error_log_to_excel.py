@@ -26,25 +26,51 @@ def getJSONFILE(path):
                 data = json.load(json_file)
         else:
             data = {
-                'A1': r'检测服务器状态：False',
-                'A2': r'程序启动时，网络异常，将进入离线模式',
-                'B1': r'获取工作站状态失败，服务不可访问',
-                'B2': r'登录页，已到最大重试次数，进入离线模式'
+                "A1": "检测服务器状态：False",
+                "A2": "程序启动时，网络异常，将进入离线模式",
+                'B1': "获取工作站状态失败，服务不可访问",
+                "B2": "登录页，已到最大重试次数，进入离线模式"
             }
+            with open(datafile, 'w') as json_file:
+                json.dump(data, json_file, indent=4)
     except json.JSONDecodeError as e:
         print(f"JSONDecodeError: {e}. Initializing with default data.")
         data = {
-            'A1': r'检测服务器状态：False',
-            'A2': r'程序启动时，网络异常，将进入离线模式',
-            'B1': r'获取工作站状态失败，服务不可访问',
-            'B2': r'登录页，已到最大重试次数，进入离线模式'
+            "A1": "检测服务器状态：False",
+            "A2": "程序启动时，网络异常，将进入离线模式",
+            'B1': "获取工作站状态失败，服务不可访问",
+            "B2": "登录页，已到最大重试次数，进入离线模式"
         }
+        with open(datafile, 'w') as json_file:
+                json.dump(data, json_file, indent=4)
     return data
 
 def get_error_json():
     path = Path('error_types.json')
     return getJSONFILE(path)
 
+def add_error_json(path, key, content):
+    datafile = path
+    data = get_error_json()
+    if key in data:
+        return False
+    else:
+        data[key] = content
+        with open(datafile, 'w') as json_file:
+            json.dump(data, json_file, indent=4)
+        return True
+
+def remove_error_json(path, key):
+    datafile = path
+    data = get_error_json()
+    if key in data:
+        del data[key]
+        with open(datafile, 'w') as json_file:
+            json.dump(data, json_file, indent=4)
+        return True
+    else:
+        return False
+        
 def get_error_type(message):
     # error_types = {
     #     'A1': r'检测服务器状态：False',
