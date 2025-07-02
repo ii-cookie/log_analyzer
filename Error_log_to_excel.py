@@ -256,7 +256,7 @@ if __name__ == "__main__":
     #2
     #using onedrive folder from C:\Users\isaacleong\Downloads\log_analyzer to C:\Users\isaacleong\WAFER SYSTEMS\Tin Lai - Log
     #RUN in relative path to one drive, may need to change depending where you downloaded this directory
-    folderpath = '../../WAFER SYSTEMS/Tin Lai - Log/30.6.2025/SPKPL'     #UNCOMMENT to set this as default
+    folderpath = '../../WAFER SYSTEMS/Tin Lai - Log/30.6.2025/'     #UNCOMMENT to set this as default
     today = datetime.datetime.now()
     output_excel_location = today.strftime('xlsx/%d-%m-%Y_error_logs.xlsx')
     
