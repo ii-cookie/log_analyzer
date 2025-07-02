@@ -22,7 +22,7 @@ def getJSONFILE(path):
     datafile = path
     try:
         if datafile.is_file():    
-            with open(datafile) as json_file:
+            with open(datafile, encoding='utf-8') as json_file:
                 data = json.load(json_file)
         else:
             data = {
