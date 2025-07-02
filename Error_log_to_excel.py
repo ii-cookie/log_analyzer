@@ -51,7 +51,7 @@ def process_local_log_file(filepath, date_str, library, machine):
 
 def recursive_walk_for_zip(logs_folder):
     for root, _folder, files in os.walk(logs_folder):
-        print(f'going through: {root}: {_folder} ... ')
+        print('\033[95m'+f'going through: {root}: {_folder} ... '+'\033[0m')
         for file in files:
             if file.endswith('.zip') and file != '.gitignore':
                 zip_path = os.path.join(root, file)
@@ -78,7 +78,7 @@ def recursive_walk_for_zip(logs_folder):
                         # Walk through the Log folder in the zip
                         log_dir = os.path.join(temp_dir, 'Log')
                         if not os.path.exists(log_dir):
-                            print(f"Log directory not found in zip file: {zip_path}")
+                            print(f'\033[93m' + "Log directory not found in zip file: {zip_path}\n\tgoing thru inside of the zip file" + '\033[95m')
                             recursive_walk_for_zip(temp_dir)
                             continue
                         if library in lib_machines_count:  
@@ -99,7 +99,7 @@ def recursive_walk_for_zip(logs_folder):
                                 log_data = process_local_log_file(filepath, date_str, library, machine)
                                 all_error_logs.extend(log_data)
                     except zipfile.BadZipFile:
-                        print(f"Invalid zip file: {zip_path}")
+                        print(f'\033[91m' + "Invalid zip file: {zip_path}" + '\033[95m')
                         invalid_zip.append(zip_path)
                         continue
 
@@ -118,7 +118,7 @@ def extract_errors_to_single_excel(logs_folder='logs', output_excel='xlsx/error_
     
     # Walk through logs folder and all subfolders
     for root, _folder, files in os.walk(logs_folder):
-        print(f'going through: {root}: {_folder} ... ')
+        print('\033[95m'+f'going through: {root}: {_folder} ... '+'\033[0m')
         for file in files:
             if file.endswith('.zip') and file != '.gitignore':
                 zip_path = os.path.join(root, file)
@@ -141,7 +141,7 @@ def extract_errors_to_single_excel(logs_folder='logs', output_excel='xlsx/error_
                         # Walk through the Log folder in the zip
                         log_dir = os.path.join(temp_dir, 'Log')
                         if not os.path.exists(log_dir):
-                            print(f"Log directory not found in zip file: {zip_path}")
+                            print('\033[93m' + f"Log directory not found in zip file: {zip_path}\n\tgoing thru inside of the zip file" + '\033[95m')
                             recursive_walk_for_zip(temp_dir)
                             continue
                         if library in lib_machines_count:  
@@ -162,7 +162,7 @@ def extract_errors_to_single_excel(logs_folder='logs', output_excel='xlsx/error_
                                 log_data = process_local_log_file(filepath, date_str, library, machine)
                                 all_error_logs.extend(log_data)
                     except zipfile.BadZipFile:
-                        print(f"Invalid zip file: {zip_path}")
+                        print(f'\033[91m' + "Invalid zip file: {zip_path}" + '\033[95m')
                         invalid_zip.append(zip_path)
                         continue
     
@@ -171,7 +171,7 @@ def extract_errors_to_single_excel(logs_folder='logs', output_excel='xlsx/error_
         for zip in invalid_zip:
             f.write(zip + '\n')
             count += 1
-        print(f"invalid_zip.txt created, total invalid zips: {count}")
+        print('\033[92m' + f"invalid_zip.txt created, total invalid zips: {count}")
     # Create DataFrame
     error_df = pd.DataFrame(all_error_logs)
     
@@ -189,8 +189,8 @@ def extract_errors_to_single_excel(logs_folder='logs', output_excel='xlsx/error_
             error_df.to_excel(writer, sheet_name='Error_Logs', index=False)
             
             
-    print(f"Excel file created successfully: {output_excel}")
-    print(f"number of machines per lib: {lib_machines_count}")
+    print(f"Excel file created successfully: {output_excel}" + '\033[0m')
+    print('\033[94m' + f"number of machines per lib: {lib_machines_count}" + '\033[0m')
     
 
 if __name__ == "__main__":
