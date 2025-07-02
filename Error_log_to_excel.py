@@ -193,13 +193,24 @@ def extract_errors_to_single_excel(logs_folder='logs', output_excel='xlsx/error_
     
 
 if __name__ == "__main__":
-    
+    #1
     #using current directory folder
     #RUN in local logs folder
-    # extract_errors_to_single_excel(logs_folder='logs', output_excel='xlsx/error_logs.xlsx')
+    # folderpath = 'logs'   #UNCOMMENT this to use
     
+    #2
     #using onedrive folder from C:\Users\isaacleong\Downloads\log_analyzer to C:\Users\isaacleong\WAFER SYSTEMS\Tin Lai - Log
     #RUN in relative path to one drive, may need to change depending where you downloaded this directory
-    folderpath = '../../WAFER SYSTEMS/Tin Lai - Log/30.6.2025/KCPL'
-    # folderpath = 'logs'
+    folderpath = '../../WAFER SYSTEMS/Tin Lai - Log/30.6.2025'     #UNCOMMENT this to use
+    print('-----------------------------------log analyzer-----------------------------------\n')
+    while True: 
+        reply = input('The current logs folder is: ' + folderpath + '\n' + 
+                      'Commands:\n' +
+                      '\tTo run the program, please type \'run\' \n' +
+                      '\tTo change path to using local directory logs, please type \'logs\' \n' +
+                      '\tTo use another relative path / absolute path, please type the path directly\n')
+        if reply == 'run':
+            break
+        folderpath = reply
+        
     extract_errors_to_single_excel(logs_folder=folderpath, output_excel='xlsx/all_error_logs.xlsx')
