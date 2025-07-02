@@ -47,19 +47,74 @@ def process_local_log_file(filepath, date_str, library, machine):
                     data.append(parsed)
     return data
 
-def extract_errors_to_single_excel(logs_folder='logs', output_excel='xlsx/error_logs.xlsx'):
-    """Extract specified error types from local logs in all zip files across subfolders and save to a single Excel file."""
-    # Initialize list to store all error data
-    all_error_logs = []
-    
-    # Regular expression to match date in filename (e.g., 2025-02-10)
-    date_pattern = r'(\d{4}-\d{2}-\d{2})'
-    
-    invalid_zip = []
-    
-    lib_machines_count = {
+
+def recursive_walk_for_zip(logs_folder):
+    for root, _folder, files in os.walk(logs_folder):
+        print(f'going through: {root}: {_folder} ... ')
+        for file in files:
+            if file.endswith('.zip') and file != '.gitignore':
+                zip_path = os.path.join(root, file)
+                
+                # Extract filename without extension
+                filename = os.path.splitext(file)[0]
+                
+                # Extract Library and Machine from filename (e.g., YT-GFK-PAK1)
+                library = filename.split('-')[0] if '-' in filename else filename
+                machine = filename
+                
+                # if library in lib_machines_count:  
+                #     lib_machines_count[library] += 1
+                # else:
+                #     lib_machines_count[library] = 1
+                # lib_machines_count['all library'] += 1
+                # Create a temporary directory to extract files
+                with tempfile.TemporaryDirectory() as temp_dir:
+                    try:
+                        # Extract zip file
+                        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+                            zip_ref.extractall(temp_dir)
+                        
+                        # Walk through the Log folder in the zip
+                        log_dir = os.path.join(temp_dir, 'Log')
+                        if not os.path.exists(log_dir):
+                            print(f"Log directory not found in zip file: {zip_path}")
+                            recursive_walk_for_zip(temp_dir)
+                            continue
+                        if library in lib_machines_count:  
+                            lib_machines_count[library] += 1
+                        else:
+                            lib_machines_count[library] = 1
+                        lib_machines_count['all library'] += 1        
+                        for log_root, _, log_files in os.walk(log_dir):
+                            for log_file in log_files:
+                                # Match date in filename and process only _local.log files
+                                date_match = re.search(date_pattern, log_file)
+                                if not date_match or not log_file.endswith('_local.log'):
+                                    continue
+                                date_str = date_match.group(1)
+                                
+                                # Process local log file
+                                filepath = os.path.join(log_root, log_file)
+                                log_data = process_local_log_file(filepath, date_str, library, machine)
+                                all_error_logs.extend(log_data)
+                    except zipfile.BadZipFile:
+                        print(f"Invalid zip file: {zip_path}")
+                        invalid_zip.append(zip_path)
+                        continue
+
+# Regular expression to match date in filename (e.g., 2025-02-10)
+date_pattern = r'(\d{4}-\d{2}-\d{2})'
+# Initialize list to store all error data
+all_error_logs = []
+invalid_zip = []
+lib_machines_count = {
         "all library": 0
     }
+
+def extract_errors_to_single_excel(logs_folder='logs', output_excel='xlsx/error_logs.xlsx'):
+    """Extract specified error types from local logs in all zip files across subfolders and save to a single Excel file."""
+    
+    
     # Walk through logs folder and all subfolders
     for root, _folder, files in os.walk(logs_folder):
         print(f'going through: {root}: {_folder} ... ')
@@ -74,11 +129,7 @@ def extract_errors_to_single_excel(logs_folder='logs', output_excel='xlsx/error_
                 library = filename.split('-')[0] if '-' in filename else filename
                 machine = filename
                 
-                if library in lib_machines_count:  
-                    lib_machines_count[library] += 1
-                else:
-                    lib_machines_count[library] = 1
-                lib_machines_count['all library'] += 1
+                
                 # Create a temporary directory to extract files
                 with tempfile.TemporaryDirectory() as temp_dir:
                     try:
@@ -90,8 +141,13 @@ def extract_errors_to_single_excel(logs_folder='logs', output_excel='xlsx/error_
                         log_dir = os.path.join(temp_dir, 'Log')
                         if not os.path.exists(log_dir):
                             print(f"Log directory not found in zip file: {zip_path}")
+                            recursive_walk_for_zip(temp_dir)
                             continue
-                        
+                        if library in lib_machines_count:  
+                            lib_machines_count[library] += 1
+                        else:
+                            lib_machines_count[library] = 1
+                        lib_machines_count['all library'] += 1        
                         for log_root, _, log_files in os.walk(log_dir):
                             for log_file in log_files:
                                 # Match date in filename and process only _local.log files
@@ -144,5 +200,6 @@ if __name__ == "__main__":
     
     #using onedrive folder from C:\Users\isaacleong\Downloads\log_analyzer to C:\Users\isaacleong\WAFER SYSTEMS\Tin Lai - Log
     #RUN in relative path to one drive, may need to change depending where you downloaded this directory
-    folderpath = '../../WAFER SYSTEMS/Tin Lai - Log/20.6.2025'
+    folderpath = '../../WAFER SYSTEMS/Tin Lai - Log/30.6.2025/KCPL'
+    # folderpath = 'logs'
     extract_errors_to_single_excel(logs_folder=folderpath, output_excel='xlsx/all_error_logs.xlsx')
