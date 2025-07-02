@@ -3,6 +3,7 @@ import os
 import re
 import pandas as pd
 import tempfile
+import datetime
 
 def parse_local_log_line(line):
     """Parse a local log line to extract timestamp and message."""
@@ -196,21 +197,65 @@ if __name__ == "__main__":
     #1
     #using current directory folder
     #RUN in local logs folder
-    # folderpath = 'logs'   #UNCOMMENT this to use
+    # folderpath = 'logs'   #UNCOMMENT to set this as default
+    
     
     #2
     #using onedrive folder from C:\Users\isaacleong\Downloads\log_analyzer to C:\Users\isaacleong\WAFER SYSTEMS\Tin Lai - Log
     #RUN in relative path to one drive, may need to change depending where you downloaded this directory
-    folderpath = '../../WAFER SYSTEMS/Tin Lai - Log/30.6.2025'     #UNCOMMENT this to use
-    print('-----------------------------------log analyzer-----------------------------------\n')
+    folderpath = '../../WAFER SYSTEMS/Tin Lai - Log/30.6.2025'     #UNCOMMENT to set this as default
+    today = datetime.datetime.now()
+    output_excel_location = today.strftime('xlsx/%d-%m-%Y_error_logs.xlsx')
+    
+    terminal_response = False
     while True: 
-        reply = input('The current logs folder is: ' + folderpath + '\n' + 
+        print('\033[95m' + '-----------------------------------log analyzer-----------------------------------' + '\033[0m')
+        if terminal_response:
+            print(terminal_response)
+            terminal_response = False
+        else:
+            print('')
+        reply = input('\033[94m' + 'The current logs folder is: ' + '\033[4m' + folderpath + '\n' + '\033[0m' + '\033[94m' +
+                      'The result will be stored to: ' + '\033[4m' + output_excel_location + '\n\n' + '\033[0m' + '\033[96m' +
                       'Commands:\n' +
-                      '\tTo run the program, please type \'run\' \n' +
-                      '\tTo change path to using local directory logs, please type \'logs\' \n' +
-                      '\tTo use another relative path / absolute path, please type the path directly\n')
+                      '\tTo change get log location, please type \'logs\'\n' +
+                      '\tTo change export excel file settings, please type \'export\'\n' +
+                      '\tTo run the program, please type \'run\' \n' + '\033[0m'
+                      )
         if reply == 'run':
             break
-        folderpath = reply
+        elif reply == 'logs':
+            reply = input('\033[95m' + '-----------------------------------logs settings-----------------------------------\n' + '\033[0m' + '\033[96m' +
+                          'Commands:\n' +
+                          '\tTo change path to using local directory logs, please type \'logs\' \n' +
+                          '\tTo use another relative path / absolute path, please type the path directly\n' + 
+                          '\tTo go back, please type \'back\'\n' + 
+                          '\tTo run the program, please type \'run\' \n' + '\033[0m')
+            if reply == 'back':
+                continue
+            if reply == 'run':
+                break
+            folderpath = reply
+            terminal_response = '\033[92m' + 'logs folder path changed successfully' + '\033[0m'
+        elif reply == 'export':
+            reply = input('\033[95m' + '-----------------------------------export settings-----------------------------------\n' + '\033[0m' + '\033[96m' +
+                          'Default: ' + '\033[4m' + 'xlsx/<date>_error_logs.xlsx\n' + '\033[0m' + '\033[94m' +
+                          'Commands:\n' +
+                          '\tTo change path and filename, please type the full/relative path with correct filename\n' +
+                          '\tTo go back, please type \'back\'\n' + 
+                          '\tTo run the program, please type \'run\' \n' + '\033[0m')
+            if reply == 'back':
+                continue
+            if reply == 'run':
+                break
+            if not re.search('.xlsx$', reply):
+                terminal_response = '\033[91m' + 'Failure: Cannot change export filepath / filename: \n\tIncompatible filename: please end with a .xlsx' + '\033[0m'
+                continue
+            output_excel_location = re.sub('<date>', today.strftime('%d-%m-%Y'), reply)
+            terminal_response = '\033[92m' + 'export path changed successfully' + '\033[0m'
+        else: 
+            terminal_response = '\033[93m' + 'Warning: this command do not exist' + '\033[0m'
+            continue
+            
         
-    extract_errors_to_single_excel(logs_folder=folderpath, output_excel='xlsx/all_error_logs.xlsx')
+    extract_errors_to_single_excel(logs_folder=folderpath, output_excel = output_excel_location)
