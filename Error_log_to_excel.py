@@ -4,6 +4,8 @@ import re
 import pandas as pd
 import tempfile
 import datetime
+from pathlib import Path
+import json
 
 def parse_local_log_line(line):
     """Parse a local log line to extract timestamp and message."""
@@ -16,13 +18,41 @@ def parse_local_log_line(line):
         }
     return None
 
+def getJSONFILE(path):
+    datafile = path
+    try:
+        if datafile.is_file():    
+            with open(datafile) as json_file:
+                data = json.load(json_file)
+        else:
+            data = {
+                'A1': r'检测服务器状态：False',
+                'A2': r'程序启动时，网络异常，将进入离线模式',
+                'B1': r'获取工作站状态失败，服务不可访问',
+                'B2': r'登录页，已到最大重试次数，进入离线模式'
+            }
+    except json.JSONDecodeError as e:
+        print(f"JSONDecodeError: {e}. Initializing with default data.")
+        data = {
+            'A1': r'检测服务器状态：False',
+            'A2': r'程序启动时，网络异常，将进入离线模式',
+            'B1': r'获取工作站状态失败，服务不可访问',
+            'B2': r'登录页，已到最大重试次数，进入离线模式'
+        }
+    return data
+
+def get_error_json():
+    path = Path('error_types.json')
+    return getJSONFILE(path)
+
 def get_error_type(message):
-    error_types = {
-        'A1': r'检测服务器状态：False',
-        'A2': r'程序启动时，网络异常，将进入离线模式',
-        'B1': r'获取工作站状态失败，服务不可访问',
-        'B2': r'登录页，已到最大重试次数，进入离线模式'
-    }
+    # error_types = {
+    #     'A1': r'检测服务器状态：False',
+    #     'A2': r'程序启动时，网络异常，将进入离线模式',
+    #     'B1': r'获取工作站状态失败，服务不可访问',
+    #     'B2': r'登录页，已到最大重试次数，进入离线模式'
+    # }
+    error_types = get_error_json()
     """Determine the error type based on the message content."""
     for error in error_types:
         if re.findall(error_types[error], message):
