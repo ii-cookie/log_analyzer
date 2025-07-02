@@ -17,19 +17,16 @@ def parse_local_log_line(line):
     return None
 
 def get_error_type(message):
-    A1_pattern = r'检测服务器状态：False'
-    A2_pattern = r'程序启动时，网络异常，将进入离线模式'
-    B1_pattern = r'获取工作站状态失败，服务不可访问'
-    B2_pattern = r'登录页，已到最大重试次数，进入离线模式'
+    error_types = {
+        'A1': r'检测服务器状态：False',
+        'A2': r'程序启动时，网络异常，将进入离线模式',
+        'B1': r'获取工作站状态失败，服务不可访问',
+        'B2': r'登录页，已到最大重试次数，进入离线模式'
+    }
     """Determine the error type based on the message content."""
-    if re.findall(A1_pattern, message):
-        return 'A1'
-    elif re.findall(A2_pattern, message):
-        return 'A2'
-    elif re.findall(B1_pattern, message):
-        return 'B1'
-    elif re.findall(B2_pattern, message):
-        return 'B2'
+    for error in error_types:
+        if re.findall(error_types[error], message):
+            return error
     return None
 
 def process_local_log_file(filepath, date_str, library, machine):
