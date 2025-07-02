@@ -92,7 +92,8 @@ def process_local_log_file(filepath, date_str, library, machine):
         for line in f:
             parsed = parse_local_log_line(line)
             if parsed:
-                error_type = get_error_type(parsed['Message'])
+                # error_type = get_error_type(parsed['Message'])
+                error_type = get_error_type(line)
                 if error_type:
                     parsed['Error Type'] = error_type
                     parsed['Date'] = date_str
@@ -256,7 +257,7 @@ if __name__ == "__main__":
     #2
     #using onedrive folder from C:\Users\isaacleong\Downloads\log_analyzer to C:\Users\isaacleong\WAFER SYSTEMS\Tin Lai - Log
     #RUN in relative path to one drive, may need to change depending where you downloaded this directory
-    folderpath = '../../WAFER SYSTEMS/Tin Lai - Log/30.6.2025/'     #UNCOMMENT to set this as default
+    folderpath = '../../WAFER SYSTEMS/Tin Lai - Log/30.6.2025/ABEPL'     #UNCOMMENT to set this as default
     today = datetime.datetime.now()
     output_excel_location = today.strftime('xlsx/%d-%m-%Y_error_logs.xlsx')
     
