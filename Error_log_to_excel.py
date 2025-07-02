@@ -49,8 +49,8 @@ def get_error_json():
     path = Path('error_types.json')
     return getJSONFILE(path)
 
-def add_error_json(path, key, content):
-    datafile = path
+def add_error_json(key, content):
+    datafile = Path('error_types.json')
     data = get_error_json()
     if key in data:
         return False
@@ -60,8 +60,8 @@ def add_error_json(path, key, content):
             json.dump(data, json_file, indent=4)
         return True
 
-def remove_error_json(path, key):
-    datafile = path
+def remove_error_json(key):
+    datafile = Path('error_types.json')
     data = get_error_json()
     if key in data:
         del data[key]
@@ -315,10 +315,25 @@ if __name__ == "__main__":
                 print('\033[94m' + error + ': ' + data[error] + '\033[96m')
             reply = input(
                           'Commands:\n' +
-                          '\tTo add error type, please type \'add <key> <error message>\'\n' +
+                          '\tTo add error type, please type \'add <key> <error message>\', where error message do not contain any space\n' +
                           '\tTo remove error type, please type \'remove <key>\'\n' +
                           '\tTo go back, please type \'back\'\n' + 
                           '\tTo run the program, please type \'run\' \n' + '\033[0m')
+            if reply == 'back':
+                continue
+            if reply == 'run':
+                break
+            if reply.startswith('add'):
+                words = re.split('\s', reply)
+                key = words[1]
+                content = words[2]
+                add_error_json(key, content)
+                continue
+            if reply.startswith('remove'):
+                words = re.split('\s', reply)
+                key = words[1]
+                remove_error_json(key)
+            
         else: 
             terminal_response = '\033[93m' + 'Warning: this command do not exist' + '\033[0m'
             continue
