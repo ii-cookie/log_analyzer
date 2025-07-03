@@ -14,6 +14,10 @@ folderpath = '../../WAFER SYSTEMS/Tin Lai - Log/30.6.2025/ABEPL'
 today = datetime.datetime.now()
 output_excel_location = today.strftime('xlsx/%d-%m-%Y_error_logs.xlsx')
 
+default_start_date = '2025-06-30'
+default_end_date = False
+start_date = False
+end_date = False
 default_error_types = {
     "A1": "检测服务器状态：False",
     "A2": "程序启动时，网络异常，将进入离线模式",
@@ -170,9 +174,28 @@ def recursive_walk_for_zip(logs_folder, log_filetype):
                                 
                                 date_str = date_match.group(1)
                                 
+                                global start_date
+                                global default_start_date
+                                global end_date
+                                global default_end_date
+                                
                                 new_date_str=datetime.datetime.strptime(date_str, '%Y-%m-%d')
-                                if( new_date_str < datetime.datetime.strptime('2025-06-30', '%Y-%m-%d')):
-                                    continue
+                                
+                                #check if have a default start date
+                                if not start_date:
+                                    start_date = default_start_date
+                                #if both is false then no need do skipping
+                                if start_date:
+                                    if( new_date_str < datetime.datetime.strptime(start_date, '%Y-%m-%d')):
+                                        continue
+                                
+                                #check if have a default end date
+                                if not end_date:
+                                    end_date = default_end_date
+                                #same same
+                                if end_date:
+                                    if( new_date_str > datetime.datetime.strptime(end_date, '%Y-%m-%d')):
+                                        continue
                                 
                                 filepath = os.path.join(log_root, log_file)
                                 
