@@ -30,6 +30,9 @@ default_error_types = {
     "logout(user)": "确认了退出操作"
 }
 #--------------------------------end of default------------------------------
+#--------------------------start of some global var--------------------------
+normal_boot_indicator_time = False
+#--------------------------end of some global var--------------------------
 def parse_log_line(line):
     """Parse a local log line to extract timestamp and message."""
     pattern = r'(\d{2}:\d{2}:\d{2})(\s+\d+\s+|\.\d{3}\s*)\[[^\]]+\](.*)'
@@ -87,13 +90,27 @@ def remove_error_json(key):
     else:
         return False
         
-def get_error_type(message):
+def get_error_type(message, parsed):
+    global normal_boot_indicator_time
     error_types = get_error_json()
     """Determine the error type based on the message content."""
     for error in error_types:
         if re.search(error_types[error], message):
+            if error == "language_change" or error == "logout(timeout)" or error == "logout(user)":
+                normal_boot_indicator_time = parsed["Time"]
+                return False
+            if error == "boot":
+                if normal_boot_indicator_time:  #case: last indicator exist
+                    time_diff = parsed["Time"] - normal_boot_indicator_time
+                    if time_diff.total_seconds() > 3*60:    #case: last indicator exists and is > 3 min earlier
+                        return "Abnormal boot"
+                    else:   #case: last indicator exist and is within 3 min = normal boot
+                        return "Normal boot" 
+                else:   #case: last indicator dont exist, but is booting
+                    return "First boot?"
+            
             return error
-    return None
+    return False
 
 def process_log_file(filepath, date_str, library, machine):
     """Read a log file and extract error-related data."""
@@ -104,10 +121,11 @@ def process_log_file(filepath, date_str, library, machine):
             
                
             if parsed:
-                time = datetime.datetime.strptime(parsed['Time'], '%H:%M:%S').time()
+                time = datetime.datetime.strptime(parsed['Time'], '%H:%M:%S')   #USING TIME OBJECT for get error type
                 parsed.update({"Time": time})
-                error_type = get_error_type(line)  
+                error_type = get_error_type(line, parsed)  
                 if error_type:
+                    parsed.update({"Time": time.time()})
                     parsed['Error Type'] = error_type
                     parsed['Date'] = date_str
                     parsed['Library'] = library
