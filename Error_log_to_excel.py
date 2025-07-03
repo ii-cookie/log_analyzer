@@ -14,14 +14,15 @@ folderpath = '../../WAFER SYSTEMS/Tin Lai - Log/30.6.2025/ABEPL'
 today = datetime.datetime.now()
 output_excel_location = today.strftime('xlsx/%d-%m-%Y_error_logs.xlsx')
 
-default_start_date = '2025-06-30'
+default_start_date = '2025-06-21'
+# default_start_date = False
 default_end_date = False
 start_date = False
 end_date = False
 default_error_types = {
     "A1": "检测服务器状态：False",
     "A2": "程序启动时，网络异常，将进入离线模式",
-    'B1': "获取工作站状态失败，服务不可访问",
+    "B1": "获取工作站状态失败，服务不可访问",
     "B2": "登录页，已到最大重试次数，进入离线模式",
     "boot": "获取到当前的系统默认的代理参数,本地配置为空",
     "language_change": "切换了语言",
@@ -100,9 +101,12 @@ def process_log_file(filepath, date_str, library, machine):
     with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
         for line in f:
             parsed = parse_log_line(line)  # Use single parsing function
-            error_type = get_error_type(line) 
-                
+            
+               
             if parsed:
+                time = datetime.datetime.strptime(parsed['Time'], '%H:%M:%S').time()
+                parsed.update({"Time": time})
+                error_type = get_error_type(line)  
                 if error_type:
                     parsed['Error Type'] = error_type
                     parsed['Date'] = date_str
@@ -185,7 +189,7 @@ def recursive_walk_for_zip(logs_folder, log_filetype):
                                 if not start_date:
                                     start_date = default_start_date
                                 #if both is false then no need do skipping
-                                if start_date:
+                                if start_date and not start_date  == "none":
                                     if( new_date_str < datetime.datetime.strptime(start_date, '%Y-%m-%d')):
                                         continue
                                 
@@ -193,7 +197,7 @@ def recursive_walk_for_zip(logs_folder, log_filetype):
                                 if not end_date:
                                     end_date = default_end_date
                                 #same same
-                                if end_date:
+                                if end_date and not end_date == "none":
                                     if( new_date_str > datetime.datetime.strptime(end_date, '%Y-%m-%d')):
                                         continue
                                 
@@ -330,6 +334,7 @@ if __name__ == "__main__":
                 print('\033[94m' + error + ': ' + data[error] + '\033[96m')
             reply = input(
                           'Commands:\n' +
+                          '\tTo reset to default, please type \'default\'\n' + 
                           '\tTo add error type, please type \'add <key> <error message>\', where error message do not contain any space\n' +
                           '\tTo remove error type, please type \'remove <key>\'\n' +
                           '\tTo go back, please type \'back\'\n' + 
@@ -338,16 +343,22 @@ if __name__ == "__main__":
                 continue
             if reply == 'run':
                 break
+            if reply == 'default':
+                os.remove("error_types.json")
+                terminal_response = '\033[92m' + 'error types are set to default' + '\033[0m'
+                continue
             if reply.startswith('add'):
                 words = re.split(r"\s", reply)
                 key = words[1]
                 content = words[2]
                 add_error_json(key, content)
+                terminal_response = '\033[92m' + 'error type successfully added' + '\033[0m'
                 continue
             if reply.startswith('remove'):
                 words = re.split(r"\s", reply)
                 key = words[1]
                 remove_error_json(key)
+                terminal_response = '\033[92m' + 'error type successfully removed' + '\033[0m'
             
         else: 
             terminal_response = '\033[93m' + 'Warning: this command do not exist' + '\033[0m'
