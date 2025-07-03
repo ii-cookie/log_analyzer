@@ -325,13 +325,13 @@ if __name__ == "__main__":
             if reply == 'run':
                 break
             if reply.startswith('add'):
-                words = re.split("\s", reply)
+                words = re.split(r"\s", reply)
                 key = words[1]
                 content = words[2]
                 add_error_json(key, content)
                 continue
             if reply.startswith('remove'):
-                words = re.split("\s", reply)
+                words = re.split(r"\s", reply)
                 key = words[1]
                 remove_error_json(key)
             
