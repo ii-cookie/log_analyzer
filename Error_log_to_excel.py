@@ -191,72 +191,7 @@ lib_machines_count = {
 def extract_errors_to_single_excel(logs_folder='logs', output_excel='xlsx/error_logs.xlsx'):
     """Extract specified error types from local logs in all zip files across subfolders and save to a single Excel file."""
     
-    
-    # Walk through logs folder and all subfolders
-    for root, _folder, files in os.walk(logs_folder):
-        print('\033[95m'+f'going through: {root}: {_folder} '+'\033[0m')
-
-        file_count = 0
-        checkpoint = 0
-        for file in files:
-            if file_count == 0:
-                
-                print('machine progress%: ', end=" ")
-            if file.endswith('.zip') and file != '.gitignore':
-                zip_path = os.path.join(root, file)
-                
-                # Extract filename without extension
-                filename = os.path.splitext(file)[0]
-                
-                # Extract Library and Machine from filename (e.g., YT-GFK-PAK1)
-                library = filename.split('-')[0] if '-' in filename else filename
-                machine = filename
-                
-                # Create a temporary directory to extract files
-                with tempfile.TemporaryDirectory() as temp_dir:
-                    try:
-                        # Extract zip file
-                        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-                            zip_ref.extractall(temp_dir)
-                        
-                        # Walk through the Log folder in the zip
-                        log_dir = os.path.join(temp_dir, 'Log')
-                        if not os.path.exists(log_dir):
-                            print('\033[93m' + f"Log directory not found in zip file: {zip_path}\n\tgoing thru inside of the zip file" + '\033[95m')
-                            recursive_walk_for_zip(temp_dir)
-                            continue
-                        if library in lib_machines_count:  
-                            lib_machines_count[library] += 1
-                        else:
-                            lib_machines_count[library] = 1
-                        lib_machines_count['all library'] += 1        
-                        for log_root, _, log_files in os.walk(log_dir):
-                            for log_file in log_files:
-                                # Match date in filename and process only _local.log files
-                                date_match = re.search(date_pattern, log_file)
-                                if not date_match or not log_file.endswith('_local.log'):
-                                    continue
-                                date_str = date_match.group(1)
-                                
-                                # Process local log file
-                                filepath = os.path.join(log_root, log_file)
-                                log_data = process_local_log_file(filepath, date_str, library, machine)
-                                all_error_logs.extend(log_data)
-                    except zipfile.BadZipFile:
-                        print(f'\033[91m' + "Invalid zip file: {zip_path}" + '\033[95m')
-                        invalid_zip.append(zip_path)
-                        continue
-            file_count += 1
-            progress = file_count / len(files) * 100
-            
-            if (math.floor(progress) >= checkpoint):
-                checkpoint = checkpoint + 10
-                print('.', end=" ")
-        print('\033[93m' + '\nnum of library processed:', end=' ')
-        print(len(lib_machines_count) - 1)
-        print('num of library left:', end=' ')
-        print(len(next(os.walk(logs_folder))[1]) - len(lib_machines_count) + 1)
-        print('\033[0m')
+    recursive_walk_for_zip(logs_folder)
     with open('invalid_zip.txt', 'w') as f:
         count = 0
         for zip in invalid_zip:
