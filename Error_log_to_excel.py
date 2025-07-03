@@ -81,7 +81,7 @@ def get_error_type(message):
     error_types = get_error_json()
     """Determine the error type based on the message content."""
     for error in error_types:
-        if re.findall(error_types[error], message):
+        if re.search(error_types[error], message):
             return error
     return None
 
@@ -325,13 +325,13 @@ if __name__ == "__main__":
             if reply == 'run':
                 break
             if reply.startswith('add'):
-                words = re.split('\s', reply)
+                words = re.split("\s", reply)
                 key = words[1]
                 content = words[2]
                 add_error_json(key, content)
                 continue
             if reply.startswith('remove'):
-                words = re.split('\s', reply)
+                words = re.split("\s", reply)
                 key = words[1]
                 remove_error_json(key)
             
