@@ -107,7 +107,7 @@ def get_error_type(message, parsed):
                     else:   #case: last indicator exist and is within 3 min = normal boot
                         return "Normal boot" 
                 else:   #case: last indicator dont exist, but is booting
-                    return "First boot?"
+                    return "First boot"
             
             return error
     return False
