@@ -36,16 +36,8 @@ def parse_log_line(line):
         }
     return None
 
-def parse_local_log_line(line):
-    """Parse a local log line to extract timestamp and message."""
-    pattern = r'(\d{2}:\d{2}:\d{2})\s+\d+\s+\[[^\]]+\](.*)'
-    match = re.match(pattern, line.strip())
-    if match:
-        return {
-            'Time': match.group(1),
-            'Message': match.group(2).strip()
-        }
-    return None
+def calc_day_sum(year, month, day):
+    return year*365 + month*30 + day
 
 def getJSONFILE(path):
     datafile = path
@@ -107,8 +99,6 @@ def process_log_file(filepath, date_str, library, machine):
             error_type = get_error_type(line) 
                 
             if parsed:
-                if re.search("切换了语言", line): 
-                    print(line)
                 if error_type:
                     parsed['Error Type'] = error_type
                     parsed['Date'] = date_str
@@ -163,7 +153,7 @@ def recursive_walk_for_zip(logs_folder, log_filetype):
                         # Walk through the Log folder in the zip
                         log_dir = os.path.join(temp_dir, 'Log')
                         if not os.path.exists(log_dir):
-                            print(f'\033[93m' + f"Log directory not found in zip file: {zip_path}\n\tgoing thru inside of the zip file" + '\033[95m')
+                            print('\033[93m' + f"Log directory not found in zip file: {zip_path}\n\tgoing thru inside of the zip file" + '\033[95m')
                             recursive_walk_for_zip(temp_dir, log_filetype)
                             continue
                         if library in lib_machines_count:  
@@ -179,6 +169,11 @@ def recursive_walk_for_zip(logs_folder, log_filetype):
                                     continue
                                 
                                 date_str = date_match.group(1)
+                                
+                                new_date_str=datetime.datetime.strptime(date_str, '%Y-%m-%d')
+                                if( new_date_str < datetime.datetime.strptime('2025-06-30', '%Y-%m-%d')):
+                                    continue
+                                
                                 filepath = os.path.join(log_root, log_file)
                                 
                                 # Process both _local.log and .log files
