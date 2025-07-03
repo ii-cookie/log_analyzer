@@ -6,6 +6,7 @@ import tempfile
 import datetime
 from pathlib import Path
 import json
+import math
 
 def parse_local_log_line(line):
     """Parse a local log line to extract timestamp and message."""
@@ -104,9 +105,20 @@ def process_local_log_file(filepath, date_str, library, machine):
 
 
 def recursive_walk_for_zip(logs_folder):
+    folder_count = 0
     for root, _folder, files in os.walk(logs_folder):
-        print('\033[95m'+f'going through: {root}: {_folder} ... '+'\033[0m')
+        print('\033[95m'+f'\ngoing through: {root}: {_folder} '+'\033[0m')
+        
+        file_count = 0
+        checkpoint = 0
+        
         for file in files:
+            if file_count == 0:
+                print('num of library processed:', end=' ')
+                print(len(lib_machines_count) - 1)
+                print('num of library left:', end=' ')
+                print(len(next(os.walk(logs_folder))[1]) - len(lib_machines_count) + 1)
+                print('machine progress%: ', end=" ")
             if file.endswith('.zip') and file != '.gitignore':
                 zip_path = os.path.join(root, file)
                 
@@ -156,7 +168,12 @@ def recursive_walk_for_zip(logs_folder):
                         print(f'\033[91m' + "Invalid zip file: {zip_path}" + '\033[95m')
                         invalid_zip.append(zip_path)
                         continue
-
+            file_count += 1
+            progress = file_count / len(files) * 100
+            
+            if (math.floor(progress) >= checkpoint):
+                checkpoint = checkpoint + 10
+                print('.', end=" ")                
 # Regular expression to match date in filename (e.g., 2025-02-10)
 date_pattern = r'(\d{4}-\d{2}-\d{2})'
 # Initialize list to store all error data
@@ -172,8 +189,17 @@ def extract_errors_to_single_excel(logs_folder='logs', output_excel='xlsx/error_
     
     # Walk through logs folder and all subfolders
     for root, _folder, files in os.walk(logs_folder):
-        print('\033[95m'+f'going through: {root}: {_folder} ... '+'\033[0m')
+        print('\033[95m'+f'\ngoing through: {root}: {_folder} '+'\033[0m')
+
+        file_count = 0
+        checkpoint = 0
         for file in files:
+            if file_count == 0:
+                print('num of library processed:', end=' ')
+                print(len(lib_machines_count) - 1)
+                print('num of library left:', end=' ')
+                print(len(next(os.walk(logs_folder))[1]) - len(lib_machines_count) + 1)
+                print('machine progress%: ', end=" ")
             if file.endswith('.zip') and file != '.gitignore':
                 zip_path = os.path.join(root, file)
                 
@@ -183,7 +209,6 @@ def extract_errors_to_single_excel(logs_folder='logs', output_excel='xlsx/error_
                 # Extract Library and Machine from filename (e.g., YT-GFK-PAK1)
                 library = filename.split('-')[0] if '-' in filename else filename
                 machine = filename
-                
                 
                 # Create a temporary directory to extract files
                 with tempfile.TemporaryDirectory() as temp_dir:
@@ -219,6 +244,13 @@ def extract_errors_to_single_excel(logs_folder='logs', output_excel='xlsx/error_
                         print(f'\033[91m' + "Invalid zip file: {zip_path}" + '\033[95m')
                         invalid_zip.append(zip_path)
                         continue
+            file_count += 1
+            progress = file_count / len(files) * 100
+            
+            if (math.floor(progress) >= checkpoint):
+                checkpoint = checkpoint + 10
+                print('.', end=" ")
+                
     
     with open('invalid_zip.txt', 'w') as f:
         count = 0
@@ -257,7 +289,8 @@ if __name__ == "__main__":
     #2
     #using onedrive folder from C:\Users\isaacleong\Downloads\log_analyzer to C:\Users\isaacleong\WAFER SYSTEMS\Tin Lai - Log
     #RUN in relative path to one drive, may need to change depending where you downloaded this directory
-    folderpath = '../../WAFER SYSTEMS/Tin Lai - Log/30.6.2025/ABEPL'     #UNCOMMENT to set this as default
+    #------------------------------default settings-----------------------
+    folderpath = '../../WAFER SYSTEMS/Tin Lai - Log/30.6.2025'     #UNCOMMENT to set this as default
     today = datetime.datetime.now()
     output_excel_location = today.strftime('xlsx/%d-%m-%Y_error_logs.xlsx')
     
