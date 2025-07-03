@@ -107,17 +107,17 @@ def process_local_log_file(filepath, date_str, library, machine):
 def recursive_walk_for_zip(logs_folder):
     folder_count = 0
     for root, _folder, files in os.walk(logs_folder):
-        print('\033[95m'+f'\ngoing through: {root}: {_folder} '+'\033[0m')
+        print('\033[95m'+f'going through: {root}: {_folder} '+'\033[0m')
         
         file_count = 0
         checkpoint = 0
         
         for file in files:
             if file_count == 0:
-                print('num of library processed:', end=' ')
-                print(len(lib_machines_count) - 1)
-                print('num of library left:', end=' ')
-                print(len(next(os.walk(logs_folder))[1]) - len(lib_machines_count) + 1)
+                # print('num of library processed:', end=' ')
+                # print(len(lib_machines_count) - 1)
+                # print('num of library left:', end=' ')
+                # print(len(next(os.walk(logs_folder))[1]) - len(lib_machines_count) + 1)
                 print('machine progress%: ', end=" ")
             if file.endswith('.zip') and file != '.gitignore':
                 zip_path = os.path.join(root, file)
@@ -173,7 +173,12 @@ def recursive_walk_for_zip(logs_folder):
             
             if (math.floor(progress) >= checkpoint):
                 checkpoint = checkpoint + 10
-                print('.', end=" ")                
+                print('.', end=" ")   
+        print('\033[93m' + '\nnum of library processed:', end=' ')
+        print(len(lib_machines_count) - 1)
+        print('num of library left:', end=' ')
+        print(len(next(os.walk(logs_folder))[1]) - len(lib_machines_count) + 1)             
+        print('\033[0m')
 # Regular expression to match date in filename (e.g., 2025-02-10)
 date_pattern = r'(\d{4}-\d{2}-\d{2})'
 # Initialize list to store all error data
@@ -189,16 +194,13 @@ def extract_errors_to_single_excel(logs_folder='logs', output_excel='xlsx/error_
     
     # Walk through logs folder and all subfolders
     for root, _folder, files in os.walk(logs_folder):
-        print('\033[95m'+f'\ngoing through: {root}: {_folder} '+'\033[0m')
+        print('\033[95m'+f'going through: {root}: {_folder} '+'\033[0m')
 
         file_count = 0
         checkpoint = 0
         for file in files:
             if file_count == 0:
-                print('num of library processed:', end=' ')
-                print(len(lib_machines_count) - 1)
-                print('num of library left:', end=' ')
-                print(len(next(os.walk(logs_folder))[1]) - len(lib_machines_count) + 1)
+                
                 print('machine progress%: ', end=" ")
             if file.endswith('.zip') and file != '.gitignore':
                 zip_path = os.path.join(root, file)
@@ -250,8 +252,11 @@ def extract_errors_to_single_excel(logs_folder='logs', output_excel='xlsx/error_
             if (math.floor(progress) >= checkpoint):
                 checkpoint = checkpoint + 10
                 print('.', end=" ")
-                
-    
+        print('\033[93m' + '\nnum of library processed:', end=' ')
+        print(len(lib_machines_count) - 1)
+        print('num of library left:', end=' ')
+        print(len(next(os.walk(logs_folder))[1]) - len(lib_machines_count) + 1)
+        print('\033[0m')
     with open('invalid_zip.txt', 'w') as f:
         count = 0
         for zip in invalid_zip:
