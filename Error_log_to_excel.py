@@ -332,6 +332,8 @@ if __name__ == "__main__":
             reply = input('\033[94m' + 'The current start date is: ' + str(current_start_date) + '\n' +
                           'The current end date is: ' + str(current_end_date) + '\n' +
                           '\033[96m' +'Commands:\n' +
+                          '\tTo change start date, please type \'start yyyy-mm-dd\' \n' +
+                          '\tTo change end date, please type \'end yyyy-mm-dd\' \n' +
                           '\tTo change path to using local directory logs, please type \'logs\' \n' +
                           '\tTo use another relative path / absolute path, please type the path directly\n' + 
                           '\tTo go back, please type \'back\'\n' + 
@@ -351,6 +353,19 @@ if __name__ == "__main__":
                     continue
                 else:
                     terminal_response = '\033[91m' + 'Failure: Cannot change start date \n\tIncompatible date: please enter a valid date' + '\033[0m'
+                    continue
+                
+            if reply.startswith('end'):
+                words = re.split(r"\s", reply)
+                if len(words) == 1:
+                    terminal_response = '\033[91m' + 'Failure: Cannot change end date \n\tEmpty response: please enter a date' + '\033[0m'
+                    continue
+                if re.match(date_pattern, words[1]):
+                    end_date = words[1]
+                    terminal_response = '\033[92m' + 'end date changed successfully' + '\033[0m'
+                    continue
+                else:
+                    terminal_response = '\033[91m' + 'Failure: Cannot change end date \n\tIncompatible date: please enter a valid date' + '\033[0m'
                     continue
                     
             folderpath = reply
