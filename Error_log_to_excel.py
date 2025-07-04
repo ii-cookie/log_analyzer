@@ -10,13 +10,13 @@ import math
 
 #---------------------------default settings----------------------------------
 
-folderpath = '../../WAFER SYSTEMS/Tin Lai - Log/30.6.2025/ABEPL'    
+folderpath = '../../WAFER SYSTEMS/Tin Lai - Log/30.6.2025/'    
 today = datetime.datetime.now()
 output_excel_location = today.strftime('xlsx/%d-%m-%Y_error_logs.xlsx')
 
 default_start_date = '2025-06-21'
 # default_start_date = False
-default_end_date = False
+default_end_date = 'none'
 start_date = False
 end_date = False
 default_error_types = {
@@ -311,13 +311,28 @@ if __name__ == "__main__":
                       '\tTo change get log location, please type \'logs\'\n' +
                       '\tTo change export excel file settings, please type \'export\'\n' +
                       '\tTo add or remove error types, please type \'errors\'\n' +
+                      '\tTo view all info, please type \'info\'\n' +
                       '\tTo run the program, please type \'run\' \n' + '\033[0m'
                       )
         if reply == 'run':
             break
         elif reply == 'logs':
-            reply = input('\033[95m' + '-----------------------------------logs settings-----------------------------------\n' + '\033[0m' + '\033[96m' +
-                          'Commands:\n' +
+            print('\033[95m' + '-----------------------------------logs settings-----------------------------------\n' + '\033[0m')
+            
+            if start_date == False:
+                current_start_date = default_start_date
+            else:
+                current_start_date = start_date
+            
+            if end_date == False:
+                current_end_date = default_end_date
+            else:
+                current_end_date = end_date
+            
+            
+            reply = input('\033[94m' + 'The current start date is: ' + str(current_start_date) + '\n' +
+                          'The current end date is: ' + str(current_end_date) + '\n' +
+                          '\033[96m' +'Commands:\n' +
                           '\tTo change path to using local directory logs, please type \'logs\' \n' +
                           '\tTo use another relative path / absolute path, please type the path directly\n' + 
                           '\tTo go back, please type \'back\'\n' + 
@@ -331,6 +346,7 @@ if __name__ == "__main__":
         elif reply == 'export':
             reply = input('\033[95m' + '-----------------------------------export settings-----------------------------------\n' + '\033[0m' + '\033[96m' +
                           'Default: ' + '\033[4m' + 'xlsx/<date>_error_logs.xlsx\n' + '\033[0m' + '\033[94m' +
+                          'Current: ' + '\033[4m' + str(output_excel_location) + '\033[0m' + '\033[94m' +
                           'Commands:\n' +
                           '\tTo change path and filename, please type the full/relative path with correct filename\n' +
                           '\tTo go back, please type \'back\'\n' + 
@@ -346,8 +362,9 @@ if __name__ == "__main__":
             terminal_response = '\033[92m' + 'export path changed successfully' + '\033[0m'
             
         elif reply == 'errors':
-            data = get_error_json()
+            
             print('\033[95m' + '-----------------------------------errors settings-----------------------------------' + '\033[0m' + '\033[96m')
+            data = get_error_json()
             for error in data:
                 print('\033[94m' + error + ': ' + data[error] + '\033[96m')
             reply = input(
@@ -377,6 +394,24 @@ if __name__ == "__main__":
                 key = words[1]
                 remove_error_json(key)
                 terminal_response = '\033[92m' + 'error type successfully removed' + '\033[0m'
+                
+        elif reply == 'info':
+            if start_date == False:
+                current_start_date = default_start_date
+            else:
+                current_start_date = start_date
+            
+            if end_date == False:
+                current_end_date = default_end_date
+            else:
+                current_end_date = end_date
+            print('\033[94m' + 'The current start date is: ' + str(current_start_date) + '\n' +
+                          'The current end date is: ' + str(current_end_date) + '\n' +
+                          'Default export path: ' + '\033[4m' + 'xlsx/<date>_error_logs.xlsx\n' + '\033[0m' + '\033[94m' +
+                          'Current export path: ' + '\033[4m' + str(output_excel_location) + '\033[0m' + '\033[94m')
+            data = get_error_json()
+            for error in data:
+                print('\033[94m' + error + ': ' + data[error] + '\033[96m')
             
         else: 
             terminal_response = '\033[93m' + 'Warning: this command do not exist' + '\033[0m'
