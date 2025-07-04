@@ -342,8 +342,14 @@ if __name__ == "__main__":
                 break
             if reply.startswith('start'):
                 words = re.split(r"\s", reply)
+                if len(words) == 1:
+                    terminal_response = '\033[91m' + 'Failure: Cannot change start date \n\tEmpty response: please enter a date'
                 if re.match(date_pattern, words[1]):
                     start_date = words[1]
+                    continue
+                else:
+                    terminal_response = '\033[91m' + 'Failure: Cannot change start date \n\tIncompatible date: please enter a valid date' + '\033[0m'
+                    continue
                     
             folderpath = reply
             terminal_response = '\033[92m' + 'logs folder path changed successfully' + '\033[0m'
