@@ -344,6 +344,7 @@ if __name__ == "__main__":
                 words = re.split(r"\s", reply)
                 if len(words) == 1:
                     terminal_response = '\033[91m' + 'Failure: Cannot change start date \n\tEmpty response: please enter a date'
+                    continue
                 if re.match(date_pattern, words[1]):
                     start_date = words[1]
                     continue
