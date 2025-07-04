@@ -347,6 +347,10 @@ if __name__ == "__main__":
                 if len(words) == 1:
                     terminal_response = '\033[91m' + 'Failure: Cannot change start date \n\tEmpty response: please enter a date' + '\033[0m'
                     continue
+                if words[1] == 'none':
+                    start_date = words[1]
+                    terminal_response = '\033[92m' + 'start date changed successfully' + '\033[0m'
+                    continue
                 if re.match(date_pattern, words[1]):
                     start_date = words[1]
                     terminal_response = '\033[92m' + 'start date changed successfully' + '\033[0m'
@@ -359,6 +363,10 @@ if __name__ == "__main__":
                 words = re.split(r"\s", reply)
                 if len(words) == 1:
                     terminal_response = '\033[91m' + 'Failure: Cannot change end date \n\tEmpty response: please enter a date' + '\033[0m'
+                    continue
+                if words[1] == 'none':
+                    end_date = words[1]
+                    terminal_response = '\033[92m' + 'end date changed successfully' + '\033[0m'
                     continue
                 if re.match(date_pattern, words[1]):
                     # #if both is false then no need do skipping
