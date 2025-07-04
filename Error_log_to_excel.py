@@ -329,7 +329,6 @@ if __name__ == "__main__":
             else:
                 current_end_date = end_date
             
-            
             reply = input('\033[94m' + 'The current start date is: ' + str(current_start_date) + '\n' +
                           'The current end date is: ' + str(current_end_date) + '\n' +
                           '\033[96m' +'Commands:\n' +
@@ -341,6 +340,11 @@ if __name__ == "__main__":
                 continue
             if reply == 'run':
                 break
+            if reply.startswith('start'):
+                words = re.split(r"\s", reply)
+                if re.match(date_pattern, words[1]):
+                    start_date = words[1]
+                    
             folderpath = reply
             terminal_response = '\033[92m' + 'logs folder path changed successfully' + '\033[0m'
         elif reply == 'export':
