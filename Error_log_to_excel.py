@@ -347,6 +347,7 @@ if __name__ == "__main__":
                     continue
                 if re.match(date_pattern, words[1]):
                     start_date = words[1]
+                    terminal_response = '\033[92m' + 'start date changed successfully' + '\033[0m'
                     continue
                 else:
                     terminal_response = '\033[91m' + 'Failure: Cannot change start date \n\tIncompatible date: please enter a valid date' + '\033[0m'
