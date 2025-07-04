@@ -406,13 +406,19 @@ if __name__ == "__main__":
             else:
                 current_end_date = end_date
             print('\033[94m' + 'The current start date is: ' + str(current_start_date) + '\n' +
-                          'The current end date is: ' + str(current_end_date) + '\n' +
+                          'The current end date is: ' + str(current_end_date) + '\n\n' +
                           'Default export path: ' + '\033[4m' + 'xlsx/<date>_error_logs.xlsx\n' + '\033[0m' + '\033[94m' +
-                          'Current export path: ' + '\033[4m' + str(output_excel_location) + '\033[0m' + '\033[94m')
+                          'Current export path: ' + '\033[4m' + str(output_excel_location) + '\033[0m' + '\033[94m\n')
             data = get_error_json()
             for error in data:
                 print('\033[94m' + error + ': ' + data[error] + '\033[96m')
-            
+            reply = input('Commands:\n' +
+                          '\tTo go back, please type \'back\'\n' + 
+                          '\tTo run the program, please type \'run\' \n' + '\033[0m')
+            if reply == 'back':
+                continue
+            if reply == 'run':
+                break
         else: 
             terminal_response = '\033[93m' + 'Warning: this command do not exist' + '\033[0m'
             continue
