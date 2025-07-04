@@ -352,6 +352,10 @@ if __name__ == "__main__":
                     terminal_response = '\033[92m' + 'start date changed successfully' + '\033[0m'
                     continue
                 if re.match(date_pattern, words[1]):
+                    if end_date and not end_date == "none":
+                        if( datetime.datetime.strptime(words[1], '%Y-%m-%d') > datetime.datetime.strptime(end_date, '%Y-%m-%d')):
+                            terminal_response = '\033[91m' + 'Failure: Cannot change end date \n\tStart date cannot be later than end date: please enter a valid date' + '\033[0m'
+                            continue
                     start_date = words[1]
                     terminal_response = '\033[92m' + 'start date changed successfully' + '\033[0m'
                     continue
@@ -381,7 +385,10 @@ if __name__ == "__main__":
                     #             if end_date and not end_date == "none":
                     #                 if( new_date_str > datetime.datetime.strptime(end_date, '%Y-%m-%d')):
                     #                     continue
-                    
+                    if start_date and not start_date  == "none":    #checking if end earlier than start
+                        if( datetime.datetime.strptime(words[1], '%Y-%m-%d') > datetime.datetime.strptime(start_date, '%Y-%m-%d')):
+                            terminal_response = '\033[91m' + 'Failure: Cannot change end date \n\tEnd date cannot be earlier than start date: please enter a valid date' + '\033[0m'
+                            continue
                     end_date = words[1]
                     terminal_response = '\033[92m' + 'end date changed successfully' + '\033[0m'
                     continue
