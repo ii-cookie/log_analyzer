@@ -361,6 +361,19 @@ if __name__ == "__main__":
                     terminal_response = '\033[91m' + 'Failure: Cannot change end date \n\tEmpty response: please enter a date' + '\033[0m'
                     continue
                 if re.match(date_pattern, words[1]):
+                    # #if both is false then no need do skipping
+                    #             if start_date and not start_date  == "none":
+                    #                 if( new_date_str < datetime.datetime.strptime(start_date, '%Y-%m-%d')):
+                    #                     continue
+                                
+                    #             #check if have a default end date
+                    #             if not end_date:
+                    #                 end_date = default_end_date
+                    #             #same same
+                    #             if end_date and not end_date == "none":
+                    #                 if( new_date_str > datetime.datetime.strptime(end_date, '%Y-%m-%d')):
+                    #                     continue
+                    
                     end_date = words[1]
                     terminal_response = '\033[92m' + 'end date changed successfully' + '\033[0m'
                     continue
