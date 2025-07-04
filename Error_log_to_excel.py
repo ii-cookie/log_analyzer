@@ -409,13 +409,16 @@ if __name__ == "__main__":
                 current_end_date = default_end_date
             else:
                 current_end_date = end_date
-            print('\033[94m' + 'The current start date is: ' + str(current_start_date) + '\n' +
-                          'The current end date is: ' + str(current_end_date) + '\n\n' +
-                          'Default export path: ' + '\033[4m' + 'xlsx/<date>_error_logs.xlsx\n' + '\033[0m' + '\033[94m' +
-                          'Current export path: ' + '\033[4m' + str(output_excel_location) + '\033[0m' + '\033[94m\n')
+            print('\033[95m' + '-----------------------------------info-----------------------------------' + '\033[0m' + '\033[96m')
+            print('\033[94m' + 'The current start date is: ' + str(current_start_date) + ' (logs)\n' +
+                          'The current end date is: ' + str(current_end_date) + ' (logs)\n\n' +
+                          'Default export path: ' + '\033[4m' + 'xlsx/<date>_error_logs.xlsx (logs)\n' + '\033[0m' + '\033[94m' +
+                          'Current export path: ' + '\033[4m' + str(output_excel_location) + ' (logs)\033[0m' + '\033[94m\n\n' + 
+                          'Default: ' + '\033[4m' + 'xlsx/<date>_error_logs.xlsx(export)\n' + '\033[0m' + '\033[94m' +
+                          'Current: ' + '\033[4m' + str(output_excel_location) + '(export)\033[0m' + '\033[94m\n')
             data = get_error_json()
             for error in data:
-                print('\033[94m' + error + ': ' + data[error] + '\033[96m')
+                print('\033[94m' + error + ': ' + data[error] + '(errors)\033[96m')
             reply = input('Commands:\n' +
                           '\tTo go back, please type \'back\'\n' + 
                           '\tTo run the program, please type \'run\' \n' + '\033[0m')
