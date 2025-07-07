@@ -281,6 +281,19 @@ def extract_errors_to_single_excel(logs_folder='logs', output_excel='xlsx/error_
     print(f"Excel file created successfully: {output_excel}" + '\033[0m')
     print('\033[94m' + f"number of machines per lib: {lib_machines_count}" + '\033[0m')
     
+def datetime_check(date_type):
+    if date_type == 'start':
+        print('start: ' + str(start_date))
+        if start_date == False:
+            print('default start:' + str(default_start_date))
+            return default_start_date
+        else:
+            return start_date
+    if date_type == 'end':
+        if end_date == False:
+            return default_end_date
+        else:
+            return end_date
 
 if __name__ == "__main__":
     #1
@@ -352,8 +365,9 @@ if __name__ == "__main__":
                     terminal_response = '\033[92m' + 'start date changed successfully' + '\033[0m'
                     continue
                 if re.match(date_pattern, words[1]):
-                    if end_date and not end_date == "none":
-                        if( datetime.datetime.strptime(words[1], '%Y-%m-%d') > datetime.datetime.strptime(end_date, '%Y-%m-%d')):
+                    # print(datetime_check('end'))
+                    if not datetime_check('end') == "none":
+                        if( datetime.datetime.strptime(words[1], '%Y-%m-%d') > datetime.datetime.strptime(datetime_check('end'), '%Y-%m-%d')):
                             terminal_response = '\033[91m' + 'Failure: Cannot change end date \n\tStart date cannot be later than end date: please enter a valid date' + '\033[0m'
                             continue
                     start_date = words[1]
@@ -386,10 +400,10 @@ if __name__ == "__main__":
                     #                 if( new_date_str > datetime.datetime.strptime(end_date, '%Y-%m-%d')):
                     #                     continue
                     #TODO: need because global date is bool (false), need to switch to use default date check 
-                    print((start_date and not start_date  == "none"))
-                    print((datetime.datetime.strptime(words[1], '%Y-%m-%d') > datetime.datetime.strptime(start_date, '%Y-%m-%d')))
-                    if start_date and not start_date  == "none":    #checking if end earlier than start
-                        if( datetime.datetime.strptime(words[1], '%Y-%m-%d') > datetime.datetime.strptime(start_date, '%Y-%m-%d')):
+                    print(datetime_check('start'))
+                    if not datetime_check('start') == "none":    #checking if end earlier than start
+                        
+                        if( datetime.datetime.strptime(words[1], '%Y-%m-%d') < datetime.datetime.strptime(datetime_check('start'), '%Y-%m-%d')):
                             terminal_response = '\033[91m' + 'Failure: Cannot change end date \n\tEnd date cannot be earlier than start date: please enter a valid date' + '\033[0m'
                             continue
                     end_date = words[1]
