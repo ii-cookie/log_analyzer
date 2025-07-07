@@ -400,7 +400,6 @@ if __name__ == "__main__":
                     #                 if( new_date_str > datetime.datetime.strptime(end_date, '%Y-%m-%d')):
                     #                     continue
                     #TODO: need because global date is bool (false), need to switch to use default date check 
-                    print(datetime_check('start'))
                     if not datetime_check('start') == "none":    #checking if end earlier than start
                         
                         if( datetime.datetime.strptime(words[1], '%Y-%m-%d') < datetime.datetime.strptime(datetime_check('start'), '%Y-%m-%d')):
