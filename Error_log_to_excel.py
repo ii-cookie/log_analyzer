@@ -10,11 +10,11 @@ import math
 
 #---------------------------default settings----------------------------------
 
-folderpath = '../../WAFER SYSTEMS/Tin Lai - Log/30.6.2025/'    
+folderpath = '../../WAFER SYSTEMS/Tin Lai - Log'    
 today = datetime.datetime.now()
 output_excel_location = today.strftime('xlsx/%d-%m-%Y_error_logs.xlsx')
 
-default_start_date = '2025-06-21'
+default_start_date = '2025-06-06'
 # default_start_date = False
 default_end_date = 'none'
 start_date = False
@@ -27,20 +27,30 @@ default_error_types = {
     "boot": "获取到当前的系统默认的代理参数,本地配置为空",
     "language_change": "切换了语言",
     "logout(timeout)": "倒计时结束，返回登录界面",
+    "logout(remote)": "远程重启",
     "logout(user)": "确认了退出操作"
 }
 #--------------------------------end of default------------------------------
 #--------------------------start of some global var--------------------------
 normal_boot_indicator_time = False
+abnormal_boot_list = {}
+# Regular expression to match date in filename (e.g., 2025-02-10)
+date_pattern = r'(\d{4}-\d{2}-\d{2})'
+# Initialize list to store all error data
+all_local_error_logs = []
+invalid_zip = []
+lib_machines_count = {
+        "all library": 0
+    }
 #--------------------------end of some global var--------------------------
 def parse_log_line(line):
     """Parse a local log line to extract timestamp and message."""
-    pattern = r'(\d{2}:\d{2}:\d{2})(\s+\d+\s+|\.\d{3}\s*)\[[^\]]+\](.*)'
+    pattern = r'(\d{2}:\d{2}:\d{2})(\.\d{3})?\s+(.*)'
     match = re.match(pattern, line.strip())
     if match:
         return {
             'Time': match.group(1),
-            'Message': match.group(2).strip()
+            'Message': match.group(3).strip()
         }
     return None
 
@@ -96,17 +106,23 @@ def get_error_type(message, parsed):
     """Determine the error type based on the message content."""
     for error in error_types:
         if re.search(error_types[error], message):
+            # print(error + '\n')
             if error == "language_change" or error == "logout(timeout)" or error == "logout(user)":
                 normal_boot_indicator_time = parsed["Time"]
-                return False
+                
+                return error
             if error == "boot":
                 if normal_boot_indicator_time:  #case: last indicator exist
+                    if normal_boot_indicator_time == "FAKE":
+                        return "Abnormal boot"
                     time_diff = parsed["Time"] - normal_boot_indicator_time
                     if time_diff.total_seconds() > 3*60:    #case: last indicator exists and is > 3 min earlier
+                        
                         return "Abnormal boot"
                     else:   #case: last indicator exist and is within 3 min = normal boot
                         return "Normal boot" 
                 else:   #case: last indicator dont exist, but is booting
+                    normal_boot_indicator_time = "FAKE"
                     return "First boot"
             
             return error
@@ -115,22 +131,52 @@ def get_error_type(message, parsed):
 def process_log_file(filepath, date_str, library, machine):
     """Read a log file and extract error-related data."""
     data = []
+    global normal_boot_indicator_time
+    normal_boot_indicator_time = False  #reset the time indicator
+    # error_types = get_error_json() 
     with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
         for line in f:
             parsed = parse_log_line(line)  # Use single parsing function
-            
+            # if re.match(error_types["logout(user)"], line):
+            #     print(line)
                
             if parsed:
                 time = datetime.datetime.strptime(parsed['Time'], '%H:%M:%S')   #USING TIME OBJECT for get error type
                 parsed.update({"Time": time})
                 error_type = get_error_type(line, parsed)  
                 if error_type:
-                    parsed.update({"Time": time.time()})
+                    
                     parsed['Error Type'] = error_type
                     parsed['Date'] = date_str
                     parsed['Library'] = library
                     parsed['Machine'] = machine
+                    if error_type == 'Abnormal boot':
+                        if machine in abnormal_boot_list:
+                            if date_str not in abnormal_boot_list[machine]:
+                                abnormal_boot_list[machine][date_str] = [parsed]
+                            else:
+                                abnormal_boot_list[machine][date_str].append(parsed)
+                        else:
+                            abnormal_boot_list[machine] = {}
+                            abnormal_boot_list[machine][date_str] = [parsed]
+                        continue
+                    if error_type == 'logout(remote)':
+                        if machine in abnormal_boot_list:
+                            if date_str in abnormal_boot_list[machine]:
+                                for abnormal_boot in abnormal_boot_list[machine][date_str]:
+                                    # print(abnormal_boot)
+                                    time_diff = abnormal_boot['Time'] - time
+                                    if time_diff.total_seconds() <= 3*60:
+                                        
+                                        abnormal_boot.update({"Error Type": "Normal boot"})
+                                        abnormal_boot.update({"Time": time.time()})
+                                        data.append(abnormal_boot)
+                                        abnormal_boot_list[machine][date_str].remove(abnormal_boot)
+                                    else:
+                                        continue
+                    parsed.update({"Time": time.time()})
                     data.append(parsed)
+                    
     return data
 # def process_local_log_file(filepath, date_str, library, machine):
 #     """Read a local log file and extract error-related data."""
@@ -225,6 +271,7 @@ def recursive_walk_for_zip(logs_folder, log_filetype):
                                 if log_file.endswith(('_local.log', '.log')):
                                     log_data = process_log_file(filepath, date_str, library, machine)
                                     all_local_error_logs.extend(log_data)
+                                
                                     
                     except zipfile.BadZipFile:
                         print(f'\033[91m' + f"Invalid zip file: {zip_path}" + '\033[95m')
@@ -238,8 +285,8 @@ def recursive_walk_for_zip(logs_folder, log_filetype):
                 print('.', end=" ")   
         print('\033[93m' + '\nnum of library processed:', end=' ')
         print(len(lib_machines_count) - 1)
-        print('num of library left:', end=' ')
-        print(len(next(os.walk(logs_folder))[1]) - len(lib_machines_count) + 1)             
+        # print('num of library left:', end=' ')
+        # print(len(next(os.walk(logs_folder))[1]) - len(lib_machines_count) + 1)             
         print('\033[0m')
     with open('invalid_zip.txt', 'w') as f:
         count = 0
@@ -247,21 +294,22 @@ def recursive_walk_for_zip(logs_folder, log_filetype):
             f.write(zip + '\n')
             count += 1
         print('\033[92m' + f"invalid_zip.txt created, total invalid zips: {count}")
-# Regular expression to match date in filename (e.g., 2025-02-10)
-date_pattern = r'(\d{4}-\d{2}-\d{2})'
-# Initialize list to store all error data
-all_local_error_logs = []
-invalid_zip = []
-lib_machines_count = {
-        "all library": 0
-    }
+
 
 def extract_errors_to_single_excel(logs_folder='logs', output_excel='xlsx/error_logs.xlsx', log_filetype = 'local'):
     """Extract specified error types from local logs in all zip files across subfolders and save to a single Excel file."""
     
     recursive_walk_for_zip(logs_folder, log_filetype)
-    
+    # print(all_local_error_logs)
     # Create DataFrame
+    for machine in abnormal_boot_list:
+        for date in abnormal_boot_list[machine]:
+            for abnormal_boot in abnormal_boot_list[machine][date]:
+                if abnormal_boot['Time'].minute < 3:
+                    abnormal_boot.update({"Error Type": "scheduled boot"})
+                    
+                abnormal_boot.update({"Time": abnormal_boot['Time'].time()})
+                all_local_error_logs.append(abnormal_boot)
     local_error_df = pd.DataFrame(all_local_error_logs)
     
     # Reorder columns
