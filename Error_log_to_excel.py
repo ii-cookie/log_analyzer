@@ -10,7 +10,7 @@ import math
 
 #---------------------------default settings----------------------------------
 
-folderpath = '../../WAFER SYSTEMS/Tin Lai - Log'    
+folderpath = '../../WAFER SYSTEMS/Tin Lai - Log/23.7.2025/'    
 today = datetime.datetime.now()
 output_excel_location = today.strftime('xlsx/%d-%m-%Y_error_logs.xlsx')
 
