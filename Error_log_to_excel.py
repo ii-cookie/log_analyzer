@@ -74,6 +74,26 @@ def getJSONFILE(path):
                 json.dump(data, json_file, indent=4)
     return data
 
+def get_settings_json():
+    path = Path('settings.json')
+    return getJSONFILE(path)
+
+def change_settings_json(key, content):
+    datafile = Path('settings.json')
+    data = get_settings_json()
+    if key in data:
+        data.pop(key)
+        data[key] = content
+        with open(datafile, 'w') as json_file:
+            json.dump(data, json_file, indent=4)
+        return True
+    else: 
+        data[key] = content
+        with open(datafile, 'w') as json_file:
+            json.dump(data, json_file, indent=4)
+        return True
+    return False
+
 def get_error_json():
     path = Path('error_types.json')
     return getJSONFILE(path)
@@ -342,6 +362,20 @@ def datetime_check(date_type):
             return default_end_date
         else:
             return end_date
+        
+        
+# -----------------------Change default settings to user customized setting----------------------
+settings = get_settings_json()
+
+if "folderpath" in settings:
+    folderpath = settings["folderpath"]
+if "output_excel_location" in settings:
+    output_excel_location = settings["output_excel_location"]
+if "start_date" in settings:
+    start_date = settings["start_date"]
+if "end_date" in settings:
+    end_date = settings["end_date"]
+
 
 if __name__ == "__main__":
     #1
@@ -410,6 +444,7 @@ if __name__ == "__main__":
                     continue
                 if words[1] == 'none':
                     start_date = words[1]
+                    change_settings_json("start_date", words[1])
                     terminal_response = '\033[92m' + 'start date changed successfully' + '\033[0m'
                     continue
                 if re.match(date_pattern, words[1]):
@@ -419,6 +454,7 @@ if __name__ == "__main__":
                             terminal_response = '\033[91m' + 'Failure: Cannot change end date \n\tStart date cannot be later than end date: please enter a valid date' + '\033[0m'
                             continue
                     start_date = words[1]
+                    change_settings_json("start_date", words[1])
                     terminal_response = '\033[92m' + 'start date changed successfully' + '\033[0m'
                     continue
                 else:
@@ -432,6 +468,7 @@ if __name__ == "__main__":
                     continue
                 if words[1] == 'none':
                     end_date = words[1]
+                    change_settings_json("end_date",words[1] )
                     terminal_response = '\033[92m' + 'end date changed successfully' + '\033[0m'
                     continue
                 if re.match(date_pattern, words[1]):
@@ -454,6 +491,7 @@ if __name__ == "__main__":
                             terminal_response = '\033[91m' + 'Failure: Cannot change end date \n\tEnd date cannot be earlier than start date: please enter a valid date' + '\033[0m'
                             continue
                     end_date = words[1]
+                    change_settings_json("end_date",words[1] )
                     terminal_response = '\033[92m' + 'end date changed successfully' + '\033[0m'
                     continue
                 else:
@@ -461,6 +499,7 @@ if __name__ == "__main__":
                     continue
                     
             folderpath = reply
+            change_settings_json("folderpath", reply)
             terminal_response = '\033[92m' + 'logs folder path changed successfully' + '\033[0m'
         elif reply == 'export':
             reply = input('\033[95m' + '-----------------------------------export settings-----------------------------------\n' + '\033[0m' + '\033[96m' +
@@ -477,6 +516,7 @@ if __name__ == "__main__":
             if not re.search('.xlsx$', reply):
                 terminal_response = '\033[91m' + 'Failure: Cannot change export filepath / filename: \n\tIncompatible filename: please end with a .xlsx' + '\033[0m'
                 continue
+            change_settings_json("output_excel_location", reply)
             output_excel_location = re.sub('<date>', today.strftime('%d-%m-%Y'), reply)
             terminal_response = '\033[92m' + 'export path changed successfully' + '\033[0m'
             
