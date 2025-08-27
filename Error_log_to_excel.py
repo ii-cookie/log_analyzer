@@ -8,6 +8,7 @@ from pathlib import Path
 import json
 import math
 import argparse
+import xlsxwriter
 
 #---------------------------default settings----------------------------------
 
@@ -403,13 +404,19 @@ if __name__ == "__main__":
         '--input',  # Long flag
         '-i',        # Short flag (optional shorthand)
         type=str,    # Type of the argument (string in this case)
-        help='First optional parameter (default: %(default)s)'
+        help='select input folder for logs'
     )
+    # parser.add_argument(
+    #     '--name',
+    #     '-n',
+    #     type=str,
+    #     help='select output file name'
+    # )
     parser.add_argument(
         '--output',
         '-o',
         type=str,
-        help='Second optional parameter (default: %(default)s)'
+        help='select output filepath'
     )
 
     # Parse the arguments
@@ -419,15 +426,18 @@ if __name__ == "__main__":
     input_path = args.input
     output_path = args.output
 
-    # Example usage
     if input_path:
         folderpath = input_path
     if output_path:
-        output_excel_location = output_path
-    # print(f"Parameter B: {output_path}")
+        output_excel_location = re.sub('<date>', today.strftime('%d-%m-%Y'), output_path)
+    if input_path and output_path:
+        direct_run = True
+    else: False
     
     terminal_response = False
     while True: 
+        if direct_run:
+            break
         print('\033[95m' + '-----------------------------------log analyzer-----------------------------------' + '\033[0m')
         if terminal_response:
             print(terminal_response)
