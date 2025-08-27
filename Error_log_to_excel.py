@@ -7,6 +7,7 @@ import datetime
 from pathlib import Path
 import json
 import math
+import argparse
 
 #---------------------------default settings----------------------------------
 
@@ -391,6 +392,39 @@ if __name__ == "__main__":
     # folderpath = '../../WAFER SYSTEMS/Tin Lai - Log/30.6.2025/NPPL'    
     # today = datetime.datetime.now()
     # output_excel_location = today.strftime('xlsx/%d-%m-%Y_error_logs.xlsx')
+    
+    # Create the parser
+    parser = argparse.ArgumentParser(
+        description="A Logs Analyzer script with terminal ui."
+    )
+
+    # Add optional arguments with flags
+    parser.add_argument(
+        '--input',  # Long flag
+        '-i',        # Short flag (optional shorthand)
+        type=str,    # Type of the argument (string in this case)
+        help='First optional parameter (default: %(default)s)'
+    )
+    parser.add_argument(
+        '--output',
+        '-o',
+        type=str,
+        help='Second optional parameter (default: %(default)s)'
+    )
+
+    # Parse the arguments
+    args = parser.parse_args()
+
+    # Access the arguments
+    input_path = args.input
+    output_path = args.output
+
+    # Example usage
+    if input_path:
+        folderpath = input_path
+    if output_path:
+        output_excel_location = output_path
+    # print(f"Parameter B: {output_path}")
     
     terminal_response = False
     while True: 
