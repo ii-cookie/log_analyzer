@@ -425,6 +425,8 @@ if __name__ == "__main__":
     # Access the arguments
     input_path = args.input
     output_path = args.output
+    
+    direct_run = False
 
     if input_path:
         folderpath = input_path
