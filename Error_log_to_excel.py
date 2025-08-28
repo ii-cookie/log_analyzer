@@ -403,7 +403,6 @@ if __name__ == "__main__":
     parser.add_argument(
         '--input',  # Long flag
         '-i',        # Short flag (optional shorthand)
-        type=str,    # Type of the argument (string in this case)
         help='select input folder for logs'
     )
     # parser.add_argument(
@@ -415,7 +414,6 @@ if __name__ == "__main__":
     parser.add_argument(
         '--output',
         '-o',
-        type=str,
         help='select output filepath'
     )
 
@@ -435,6 +433,9 @@ if __name__ == "__main__":
     if input_path and output_path:
         direct_run = True
     else: False
+    
+    print(folderpath)
+    print(output_excel_location)
     
     terminal_response = False
     while True: 
