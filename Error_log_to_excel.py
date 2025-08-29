@@ -11,7 +11,7 @@ import argparse
 import xlsxwriter
 
 #---------------------------default settings----------------------------------
-
+direct_run = False
 folderpath = '../../WAFER SYSTEMS/Tin Lai - Log/23.7.2025/'    
 today = datetime.datetime.now()
 output_excel_location = today.strftime('xlsx/%d-%m-%Y_error_logs.xlsx')
@@ -61,19 +61,24 @@ def calc_day_sum(year, month, day):
 
 def getJSONFILE(path):
     datafile = path
+    if path == Path('error_types.json') :
+            data = default_error_types   
+    if path == Path('settings.json'):
+        data = {}
     try:
         if datafile.is_file():    
             with open(datafile, encoding='utf-8') as json_file:
                 data = json.load(json_file)
-        else:
-            data = default_error_types
+        # UNCOMMENT TO ENABLE PRESERVING ERROR TYPES AND SETTINGS
+        if not direct_run:   
+            print(direct_run)     
             with open(datafile, 'w') as json_file:
                 json.dump(data, json_file, indent=4)
     except json.JSONDecodeError as e:
         print(f"JSONDecodeError: {e}. Initializing with default data.")
         data = default_error_types
-        with open(datafile, 'w') as json_file:
-                json.dump(data, json_file, indent=4)
+        # with open(datafile, 'w') as json_file:
+        #         json.dump(data, json_file, indent=4)
     return data
 
 def get_settings_json():
@@ -310,12 +315,12 @@ def recursive_walk_for_zip(logs_folder, log_filetype):
         # print('num of library left:', end=' ')
         # print(len(next(os.walk(logs_folder))[1]) - len(lib_machines_count) + 1)             
         print('\033[0m')
-    with open('invalid_zip.txt', 'w') as f:
-        count = 0
-        for zip in invalid_zip:
-            f.write(zip + '\n')
-            count += 1
-        print('\033[92m' + f"invalid_zip.txt created, total invalid zips: {count}")
+    # with open('invalid_zip.txt', 'w') as f:
+    #     count = 0
+    #     for zip in invalid_zip:
+    #         f.write(zip + '\n')
+    #         count += 1
+    #     print('\033[92m' + f"invalid_zip.txt created, total invalid zips: {count}")
 
 
 def extract_errors_to_single_excel(logs_folder='logs', output_excel='xlsx/error_logs.xlsx', log_filetype = 'local'):
@@ -366,17 +371,7 @@ def datetime_check(date_type):
             return end_date
         
         
-# -----------------------Change default settings to user customized setting----------------------
-settings = get_settings_json()
 
-if "folderpath" in settings:
-    folderpath = settings["folderpath"]
-if "output_excel_location" in settings:
-    output_excel_location = settings["output_excel_location"]
-if "start_date" in settings:
-    start_date = settings["start_date"]
-if "end_date" in settings:
-    end_date = settings["end_date"]
 
 
 if __name__ == "__main__":
@@ -424,7 +419,7 @@ if __name__ == "__main__":
     input_path = args.input
     output_path = args.output
     
-    direct_run = False
+    
 
     if input_path:
         folderpath = input_path
@@ -432,7 +427,18 @@ if __name__ == "__main__":
         output_excel_location = re.sub('<date>', today.strftime('%d-%m-%Y'), output_path)
     if input_path and output_path:
         direct_run = True
-    else: False
+    
+    # -----------------------Change default settings to user customized setting----------------------
+    settings = get_settings_json()
+
+    if "folderpath" in settings:
+        folderpath = settings["folderpath"]
+    if "output_excel_location" in settings:
+        output_excel_location = settings["output_excel_location"]
+    if "start_date" in settings:
+        start_date = settings["start_date"]
+    if "end_date" in settings:
+        end_date = settings["end_date"]
     
     print(folderpath)
     print(output_excel_location)
